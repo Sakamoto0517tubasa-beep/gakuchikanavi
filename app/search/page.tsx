@@ -35,13 +35,13 @@ export default function SearchPage() {
     <main className="min-h-screen bg-[#EEF1F5]">
       <header className="bg-white border-b border-gray-200">
         <div className="max-w-2xl mx-auto px-4 h-12 flex items-center">
-          <span className="text-[17px] font-bold text-[#0068B7] tracking-tight">ガクチカナビ</span>
+          <span className="text-[17px] font-medium text-[#0068B7] tracking-tight">ガクチカナビ</span>
         </div>
       </header>
       {/* ヘッダー・検索 */}
       <div className="bg-white border-b border-gray-200 sticky top-0 z-10">
         <div className="max-w-2xl mx-auto px-4 pt-4 pb-3">
-          <h1 className="text-lg font-bold text-gray-800 mb-3">企業検索</h1>
+          <h1 className="text-lg font-medium text-gray-800 mb-3">企業検索</h1>
           <div className="relative mb-3">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
               <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="1.8" />
@@ -79,7 +79,7 @@ export default function SearchPage() {
 
       {/* 企業一覧 */}
       <div className="max-w-2xl mx-auto px-4 py-4">
-        <p className="text-xs text-gray-500 mb-3"><span className="font-bold text-gray-700">{filtered.length}</span> 社</p>
+        <p className="text-xs text-gray-500 mb-3"><span className="font-medium text-gray-700">{filtered.length}</span> 社</p>
         <div className="bg-white border border-gray-200 rounded-md divide-y divide-gray-100">
           {filtered.map((company) => (
             <button
@@ -89,7 +89,7 @@ export default function SearchPage() {
             >
               <CompanyLogo name={company.name} category={company.category} size={44} />
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-bold text-gray-800 truncate">{company.name}</p>
+                <p className="text-sm font-medium text-gray-800 truncate">{company.name}</p>
                 <div className="flex items-center gap-1.5 mt-1">
                   <span className="text-[10px] text-gray-500 border border-gray-300 rounded-sm px-1 py-px shrink-0 whitespace-nowrap">{company.category}</span>
                   <span className="text-[11px] text-gray-500 truncate">{company.note}</span>
@@ -113,12 +113,12 @@ export default function SearchPage() {
           >
             <div className="w-10 h-1 bg-gray-200 rounded-full mx-auto mb-6" />
             <p className="text-xs text-gray-500 mb-1">{selectedCompany.industry}</p>
-            <h2 className="text-xl font-bold text-gray-800 mb-2">{selectedCompany.name}</h2>
+            <h2 className="text-xl font-medium text-gray-800 mb-2">{selectedCompany.name}</h2>
             <p className="text-sm text-gray-600 mb-8 leading-relaxed">{selectedCompany.note}</p>
 
             <div className="flex items-center gap-2 mb-3">
               <span className="w-1 h-3.5 bg-[#0068B7]" />
-              <p className="text-[13px] font-bold text-gray-700">求人サイトで詳細を見る</p>
+              <p className="text-[13px] font-medium text-gray-700">求人サイトで詳細を見る</p>
             </div>
             <div className="flex flex-col gap-3">
               <a
