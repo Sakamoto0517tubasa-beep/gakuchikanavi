@@ -1,19 +1,33 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { questions } from "@/lib/questions";
+import { getQuestions, type Question } from "@/lib/questions";
 
 export default function QuizPage() {
   const router = useRouter();
+  const [questions, setQuestions] = useState<Question[]>([]);
   const [current, setCurrent] = useState(0);
-  const [answers, setAnswers] = useState<Record<number, string>>({});
+  const [answers, setAnswers] = useState<{ q: string; a: string }[]>([]);
+
+  useEffect(() => {
+    const grade = sessionStorage.getItem("grade") || "";
+    if (!grade) {
+      router.replace("/start");
+      return;
+    }
+    setQuestions(getQuestions(grade));
+  }, [router]);
+
+  if (questions.length === 0) {
+    return <main className="min-h-screen bg-white" />;
+  }
 
   const question = questions[current];
-  const progress = Math.round(((current) / questions.length) * 100);
+  const progress = Math.round((current / questions.length) * 100);
 
-  function handleSelect(value: string) {
-    const newAnswers = { ...answers, [question.id]: value };
+  function handleSelect(label: string) {
+    const newAnswers = [...answers, { q: question.category, a: label }];
     setAnswers(newAnswers);
 
     if (current + 1 < questions.length) {
@@ -42,7 +56,7 @@ export default function QuizPage() {
         </div>
 
         {/* Question */}
-        <p className="text-xs tracking-widest text-gray-400 uppercase mb-3">{question.category}</p>
+        <p className="text-xs tracking-widest text-gray-400 mb-3">{question.category}</p>
         <h2 className="text-xl font-bold text-[#1A1A2E] mb-8 leading-relaxed">
           {question.text}
         </h2>
@@ -52,7 +66,7 @@ export default function QuizPage() {
           {question.options.map((opt) => (
             <button
               key={opt.value}
-              onClick={() => handleSelect(opt.value)}
+              onClick={() => handleSelect(opt.label)}
               className="w-full text-left px-6 py-4 rounded border border-gray-200 text-[#0A3059] font-medium hover:border-[#0096DF] hover:bg-[#EAF4FB] transition-all duration-150"
             >
               {opt.label}

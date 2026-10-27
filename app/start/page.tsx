@@ -41,8 +41,14 @@ const doors = [
 
 export default function StartPage() {
   const router = useRouter();
+  const [grade, setGrade] = useState("");
   const [opened, setOpened] = useState<number[]>([]);
   const [leaving, setLeaving] = useState(false);
+
+  function selectGrade(g: string) {
+    sessionStorage.setItem("grade", g);
+    setGrade(g);
+  }
 
   function handleDoor(i: number) {
     setOpened((prev) => {
@@ -56,6 +62,36 @@ export default function StartPage() {
       }
       return next;
     });
+  }
+
+  if (!grade) {
+    return (
+      <main className="min-h-screen bg-[#EEF1F5] flex flex-col items-center justify-center px-6">
+        <div className="max-w-md w-full text-center">
+          <h2 className="text-xl font-bold text-[#0A3059] mb-2">まず学年を教えてください</h2>
+          <p className="text-sm text-gray-500 mb-8">学年に合わせて、質問と提案の内容が変わります</p>
+          <div className="flex flex-col gap-3">
+            <button
+              onClick={() => selectGrade("1・2年生")}
+              className="w-full bg-white border border-gray-300 rounded-lg px-5 py-4 text-left hover:border-[#0096DF] hover:bg-[#EAF4FB] transition-all"
+            >
+              <span className="block text-base font-medium text-[#0A3059]">1・2年生</span>
+              <span className="block text-[13px] text-gray-500 mt-0.5">時間を活かして、じっくり育てるガクチカを提案</span>
+            </button>
+            <button
+              onClick={() => selectGrade("3年生")}
+              className="w-full bg-white border border-gray-300 rounded-lg px-5 py-4 text-left hover:border-[#0096DF] hover:bg-[#EAF4FB] transition-all"
+            >
+              <span className="block text-base font-medium text-[#0A3059]">3年生</span>
+              <span className="block text-[13px] text-gray-500 mt-0.5">今から間に合う、短期で語れるガクチカを提案</span>
+            </button>
+          </div>
+          <button onClick={() => router.back()} className="mt-8 text-xs text-gray-400 hover:text-gray-500 transition-colors">
+            ← 戻る
+          </button>
+        </div>
+      </main>
+    );
   }
 
   return (

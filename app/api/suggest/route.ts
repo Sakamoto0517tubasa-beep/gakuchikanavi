@@ -80,9 +80,13 @@ export async function POST(req: NextRequest) {
 - 新しく始める挑戦（長期インターン、留学、学生団体の立ち上げ、継続的な個人活動など）も積極的に提案してよい。
 - 推奨期間(period)は「半年〜2年」を目安に、活動に応じて設定する。`;
 
-    const answerSummary = Object.entries(answers as Record<string, string>)
-      .map(([id, val]) => `・${QUESTION_LABELS[Number(id)]}: ${ANSWER_LABELS[val] ?? val}`)
-      .join("\n");
+    const answerList: { q: string; a: string }[] = Array.isArray(answers)
+      ? answers
+      : Object.entries(answers as Record<string, string>).map(([id, val]) => ({
+          q: QUESTION_LABELS[Number(id)] ?? id,
+          a: ANSWER_LABELS[val] ?? val,
+        }));
+    const answerSummary = answerList.map((x) => `・${x.q}: ${x.a}`).join("\n");
 
     const prompt = `あなたは新卒就活のトップコーチです。数千人のESを添削し、内定を勝ち取らせてきました。以下の大学生のプロフィールと診断結果を深く分析し、その人だけに刺さるガクチカ（学生時代に力を入れたこと）を提案してください。
 
