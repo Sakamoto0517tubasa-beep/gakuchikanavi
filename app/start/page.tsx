@@ -60,12 +60,12 @@ export default function StartPage() {
 
   return (
     <main
-      className={`min-h-screen bg-[#F5F5F0] flex flex-col items-center justify-center px-6 transition-opacity duration-500 ${leaving ? "opacity-0" : "opacity-100"}`}
+      className={`min-h-screen bg-[#F2F4F8] flex flex-col items-center justify-center px-6 transition-opacity duration-500 ${leaving ? "opacity-0" : "opacity-100"}`}
       style={{ fontFamily: "'Helvetica Neue', Arial, 'Hiragino Sans', 'Yu Gothic', sans-serif" }}
     >
       <div className="text-center mb-12">
-        <p className="text-xs tracking-[0.3em] text-gray-400 mb-3 uppercase">Step Select</p>
-        <h2 className="text-2xl font-light text-gray-800">3つの扉を開いてください</h2>
+        <h2 className="text-xl font-bold text-gray-800 mb-2">3つの扉を開いてください</h2>
+        <p className="text-sm text-gray-500">診断・志望入力・AI提案の3ステップで進みます</p>
       </div>
 
       {/* 3つの扉 */}
@@ -111,7 +111,7 @@ export default function StartPage() {
               {/* 開いた後 */}
               <div
                 className={`absolute inset-0 border-2 transition-all duration-300 flex flex-col items-center justify-center gap-3 ${
-                  isOpen ? "border-[#1A1A2E] bg-[#1A1A2E] opacity-100" : "opacity-0 border-gray-200"
+                  isOpen ? "border-[#C8102E] bg-[#1A1A2E] opacity-100" : "opacity-0 border-gray-200"
                 }`}
               >
                 <div className="text-white">{door.icon}</div>

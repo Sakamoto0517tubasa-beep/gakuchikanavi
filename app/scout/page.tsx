@@ -6,39 +6,43 @@ export default function ScoutPage() {
   ];
 
   return (
-    <main className="min-h-screen bg-[#F5F5F0]">
-      <div className="bg-white border-b border-gray-100 px-5 pt-10 pb-4">
-        <h1 className="text-lg font-medium text-gray-800">スカウト</h1>
-        <p className="text-xs text-gray-400 mt-1">企業からのオファーが届きます</p>
+    <main className="min-h-screen bg-[#F2F4F8]">
+      <div className="bg-white border-b border-gray-200">
+        <div className="max-w-2xl mx-auto px-4 pt-10 pb-4">
+          <h1 className="text-lg font-bold text-gray-800">スカウト</h1>
+          <p className="text-[13px] text-gray-500 mt-1">企業からのオファーが届きます</p>
+        </div>
       </div>
 
-      <div className="px-5 py-4">
-        {/* 未読バッジ */}
-        <div className="bg-[#1A1A2E] text-white text-xs px-4 py-3 mb-5 flex items-center justify-between">
-          <span>未読のスカウト</span>
-          <span className="text-lg font-light">2</span>
+      <div className="max-w-2xl mx-auto px-4 py-5">
+        {/* 未読サマリ */}
+        <div className="bg-[#1A1A2E] text-white px-4 py-3.5 rounded-md mb-5 flex items-center justify-between">
+          <span className="text-sm">未読のスカウト</span>
+          <span className="flex items-baseline gap-1">
+            <span className="text-2xl font-bold text-[#ff6b7f]">2</span>
+            <span className="text-xs text-gray-400">件</span>
+          </span>
         </div>
 
-        <div className="flex flex-col gap-3">
+        <div className="bg-white border border-gray-200 rounded-md divide-y divide-gray-100">
           {scouts.map((s, i) => (
-            <div key={i} className={`bg-white p-4 ${s.unread ? "border-l-2 border-[#1A1A2E]" : ""}`}>
-              <div className="flex items-start justify-between">
-                <div>
-                  <p className="text-xs text-gray-400 mb-1">{s.company}</p>
-                  <p className="text-sm font-medium text-gray-800">{s.role}</p>
+            <div key={i} className="px-4 py-4 flex items-start justify-between">
+              <div className="flex items-start gap-3">
+                {s.unread && <span className="w-1.5 h-1.5 rounded-full bg-[#C8102E] mt-2 shrink-0" />}
+                <div className={s.unread ? "" : "pl-[18px]"}>
+                  <p className="text-xs text-gray-500 mb-0.5">{s.company}</p>
+                  <p className="text-sm font-bold text-gray-800">{s.role}</p>
                 </div>
-                <div className="flex flex-col items-end gap-1">
-                  <p className="text-xs text-gray-400">{s.date}</p>
-                  {s.unread && <span className="text-xs bg-[#1A1A2E] text-white px-2 py-0.5">NEW</span>}
-                </div>
+              </div>
+              <div className="flex flex-col items-end gap-1 shrink-0">
+                <p className="text-xs text-gray-400">{s.date}</p>
+                {s.unread && <span className="text-[10px] font-bold bg-[#C8102E] text-white px-1.5 py-0.5 rounded-sm">NEW</span>}
               </div>
             </div>
           ))}
         </div>
 
-        <div className="mt-8 text-center">
-          <p className="text-xs text-gray-300">診断完了でスカウトが届きやすくなります</p>
-        </div>
+        <p className="text-xs text-gray-400 text-center mt-8">診断を完了すると、スカウトが届きやすくなります。</p>
       </div>
     </main>
   );

@@ -14,9 +14,9 @@ type Suggestion = {
 };
 
 const RANK_CONFIG = [
-  { label: "BEST", bg: "#1A1A2E", text: "white" },
-  { label: "2ND", bg: "#3a3a5e", text: "white" },
-  { label: "3RD", bg: "#6b6b9a", text: "white" },
+  { label: "イチオシ", bg: "#C8102E", text: "white" },
+  { label: "2番目", bg: "#1A1A2E", text: "white" },
+  { label: "3番目", bg: "#5b5b7a", text: "white" },
 ];
 
 export default function ResultPage() {
@@ -51,11 +51,11 @@ export default function ResultPage() {
 
   if (loading) {
     return (
-      <main className="min-h-screen bg-[#F5F5F0] flex flex-col items-center justify-center px-4">
+      <main className="min-h-screen bg-[#F2F4F8] flex flex-col items-center justify-center px-4">
         <div className="text-center">
-          <div className="w-12 h-12 border-2 border-[#1A1A2E] border-t-transparent rounded-full animate-spin mx-auto mb-6" />
-          <p className="text-[#1A1A2E] font-medium text-lg">AIが分析中</p>
-          <p className="text-gray-400 text-sm mt-2">あなたの強みと志望を掛け合わせています...</p>
+          <div className="w-12 h-12 border-2 border-[#C8102E] border-t-transparent rounded-full animate-spin mx-auto mb-6" />
+          <p className="text-[#1A1A2E] font-bold text-lg">AIが分析中</p>
+          <p className="text-gray-500 text-sm mt-2">あなたの強みと志望を掛け合わせています...</p>
         </div>
       </main>
     );
@@ -63,7 +63,7 @@ export default function ResultPage() {
 
   if (error) {
     return (
-      <main className="min-h-screen bg-[#F5F5F0] flex flex-col items-center justify-center px-4">
+      <main className="min-h-screen bg-[#F2F4F8] flex flex-col items-center justify-center px-4">
         <p className="text-red-500 mb-4">{error}</p>
         <Link href="/" className="text-[#1A1A2E] underline text-sm">トップに戻る</Link>
       </main>
@@ -71,20 +71,24 @@ export default function ResultPage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#F5F5F0] pb-24">
+    <main className="min-h-screen bg-[#F2F4F8] pb-24">
       {/* ヘッダー */}
-      <div className="bg-[#1A1A2E] px-5 pt-14 pb-8">
-        <p className="text-xs tracking-[0.2em] text-gray-500 mb-2 uppercase">Result</p>
-        <h1 className="text-2xl font-light text-white mb-1">あなたへの提案</h1>
-        <p className="text-gray-400 text-xs">{industry} · {jobType}</p>
+      <div className="bg-[#1A1A2E]">
+        <div className="max-w-2xl mx-auto px-5 pt-12 pb-7">
+          <div className="inline-block bg-[#C8102E] text-white text-[11px] font-bold px-2.5 py-1 mb-3">
+            AI診断結果
+          </div>
+          <h1 className="text-xl font-bold text-white mb-1.5">あなたへのおすすめガクチカ</h1>
+          <p className="text-gray-400 text-[13px]">{industry}／{jobType} を志望するあなたへ</p>
+        </div>
       </div>
 
-      <div className="px-5 py-6 flex flex-col gap-4">
+      <div className="max-w-2xl mx-auto px-4 py-6 flex flex-col gap-4">
         {suggestions.map((s, i) => {
           const cfg = RANK_CONFIG[i];
           const isOpen = expanded === i;
           return (
-            <div key={s.rank} className="bg-white overflow-hidden">
+            <div key={s.rank} className="bg-white border border-gray-200 rounded-md overflow-hidden">
               {/* カードヘッダー */}
               <button
                 onClick={() => setExpanded(isOpen ? null : i)}
@@ -99,8 +103,8 @@ export default function ResultPage() {
                       {cfg.label}
                     </span>
                     <div className="flex-1 min-w-0">
-                      <p className="text-base font-medium text-gray-800 leading-snug">{s.title}</p>
-                      <p className="text-xs text-gray-400 mt-1">{s.tagline}</p>
+                      <p className="text-base font-bold text-gray-800 leading-snug">{s.title}</p>
+                      <p className="text-xs text-gray-500 mt-1">{s.tagline}</p>
                     </div>
                     <svg
                       width="16" height="16" viewBox="0 0 24 24" fill="none"
@@ -114,17 +118,17 @@ export default function ResultPage() {
 
               {/* 展開コンテンツ */}
               {isOpen && (
-                <div className="border-t border-gray-50 px-5 pb-6 pt-4 flex flex-col gap-5">
+                <div className="border-t border-gray-100 px-5 pb-6 pt-4 flex flex-col gap-5">
                   <div>
-                    <p className="text-[10px] tracking-widest text-gray-400 uppercase mb-2">なぜあなたに刺さるか</p>
+                    <p className="text-[13px] font-bold text-[#C8102E] mb-1.5">なぜあなたに刺さるか</p>
                     <p className="text-sm text-gray-700 leading-relaxed">{s.reason}</p>
                   </div>
                   <div>
-                    <p className="text-[10px] tracking-widest text-gray-400 uppercase mb-2">今すぐできる第一歩</p>
+                    <p className="text-[13px] font-bold text-[#C8102E] mb-1.5">今すぐできる第一歩</p>
                     <p className="text-sm text-gray-700 leading-relaxed">{s.howToStart}</p>
                   </div>
-                  <div className="bg-[#F5F5F0] px-4 py-4">
-                    <p className="text-[10px] tracking-widest text-gray-400 uppercase mb-2">面接フレーム（STAR）</p>
+                  <div className="bg-[#F2F4F8] border border-gray-100 px-4 py-4 rounded">
+                    <p className="text-[13px] font-bold text-gray-700 mb-1.5">面接での話し方（STAR法）</p>
                     <p className="text-sm text-gray-600 leading-relaxed">{s.script}</p>
                   </div>
                   <div className="flex items-center gap-2">
@@ -142,10 +146,10 @@ export default function ResultPage() {
       </div>
 
       {/* 再診断 */}
-      <div className="px-5 mt-2">
+      <div className="max-w-2xl mx-auto px-4 mt-2">
         <Link
           href="/start"
-          className="block w-full text-center py-4 border border-gray-200 text-sm text-gray-500 bg-white hover:bg-gray-50 transition-colors"
+          className="block w-full text-center py-4 border border-gray-300 rounded text-sm font-bold text-gray-600 bg-white hover:bg-gray-50 transition-colors"
         >
           もう一度診断する
         </Link>

@@ -32,9 +32,9 @@ export default function TargetPage() {
               <button
                 key={ind}
                 onClick={() => setIndustry(ind)}
-                className={`px-4 py-3 rounded-xl border-2 text-sm font-medium transition-all ${
+                className={`px-4 py-3 rounded border text-sm font-medium transition-all ${
                   industry === ind
-                    ? "border-[#E94560] bg-[#FFF0F3] text-[#E94560]"
+                    ? "border-[#C8102E] bg-[#FDF0F2] text-[#C8102E]"
                     : "border-gray-200 text-gray-600 hover:border-gray-300"
                 }`}
               >
@@ -52,9 +52,9 @@ export default function TargetPage() {
               <button
                 key={job}
                 onClick={() => setJobType(job)}
-                className={`px-4 py-3 rounded-xl border-2 text-sm font-medium transition-all ${
+                className={`px-4 py-3 rounded border text-sm font-medium transition-all ${
                   jobType === job
-                    ? "border-[#E94560] bg-[#FFF0F3] text-[#E94560]"
+                    ? "border-[#C8102E] bg-[#FDF0F2] text-[#C8102E]"
                     : "border-gray-200 text-gray-600 hover:border-gray-300"
                 }`}
               >
@@ -74,14 +74,14 @@ export default function TargetPage() {
             onChange={(e) => setCurrentGakuchika(e.target.value)}
             placeholder="例：アルバイトでホールスタッフをしています"
             rows={3}
-            className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-700 focus:outline-none focus:border-[#E94560] resize-none"
+            className="w-full border border-gray-200 rounded px-4 py-3 text-sm text-gray-700 focus:outline-none focus:border-[#C8102E] resize-none"
           />
         </div>
 
         <button
           onClick={handleSubmit}
           disabled={!industry || !jobType}
-          className="w-full bg-[#E94560] text-white text-lg font-bold py-4 rounded-full disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[#c73550] transition-colors"
+          className="w-full bg-[#C8102E] text-white text-[15px] font-bold py-4 rounded disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[#a60d26] transition-colors"
         >
           AIに提案してもらう →
         </button>

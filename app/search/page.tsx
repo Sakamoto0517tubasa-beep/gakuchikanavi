@@ -31,56 +31,62 @@ export default function SearchPage() {
   const selectedCompany = companies.find((c) => c.name === selected);
 
   return (
-    <main className="min-h-screen bg-[#F5F5F0]">
+    <main className="min-h-screen bg-[#F2F4F8]">
       {/* ヘッダー・検索 */}
-      <div className="bg-white border-b border-gray-100 px-5 pt-10 pb-3 sticky top-0 z-10">
-        <h1 className="text-lg font-medium text-gray-800 mb-3">企業検索</h1>
-        <div className="relative mb-3">
-          <input
-            type="text"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="企業名・業界・キーワード"
-            className="w-full bg-[#F5F5F0] text-sm text-gray-700 px-4 py-3 pr-10 focus:outline-none placeholder-gray-400"
-          />
-          {query && (
-            <button onClick={() => setQuery("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-lg">×</button>
-          )}
-        </div>
-        {/* カテゴリタブ */}
-        <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
-          {categories.map((cat) => (
-            <button
-              key={cat}
-              onClick={() => setCategory(cat)}
-              className={`shrink-0 text-xs px-3 py-1.5 transition-colors ${
-                category === cat
-                  ? "bg-[#1A1A2E] text-white"
-                  : "bg-gray-100 text-gray-500 hover:bg-gray-200"
-              }`}
-            >
-              {cat}
-            </button>
-          ))}
+      <div className="bg-white border-b border-gray-200 sticky top-0 z-10">
+        <div className="max-w-2xl mx-auto px-4 pt-10 pb-3">
+          <h1 className="text-lg font-bold text-gray-800 mb-3">企業検索</h1>
+          <div className="relative mb-3">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+              <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="1.8" />
+              <path d="M16.5 16.5L21 21" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+            </svg>
+            <input
+              type="text"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="企業名・業界・キーワード"
+              className="w-full bg-[#F2F4F8] rounded text-sm text-gray-700 pl-9 pr-10 py-3 focus:outline-none focus:ring-1 focus:ring-[#C8102E] placeholder-gray-400"
+            />
+            {query && (
+              <button onClick={() => setQuery("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-lg">×</button>
+            )}
+          </div>
+          {/* カテゴリタブ */}
+          <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+            {categories.map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setCategory(cat)}
+                className={`shrink-0 text-xs font-medium px-3 py-1.5 rounded-full transition-colors ${
+                  category === cat
+                    ? "bg-[#1A1A2E] text-white"
+                    : "bg-gray-100 text-gray-500 hover:bg-gray-200"
+                }`}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
       {/* 企業一覧 */}
-      <div className="px-5 py-4">
-        <p className="text-xs text-gray-400 mb-3">{filtered.length}社</p>
-        <div className="flex flex-col gap-2">
+      <div className="max-w-2xl mx-auto px-4 py-4">
+        <p className="text-xs text-gray-500 mb-3"><span className="font-bold text-gray-700">{filtered.length}</span> 社</p>
+        <div className="bg-white border border-gray-200 rounded-md divide-y divide-gray-100">
           {filtered.map((company) => (
             <button
               key={company.name}
               onClick={() => setSelected(company.name)}
-              className="bg-white px-4 py-4 text-left flex items-center justify-between hover:shadow-sm transition-shadow"
+              className="w-full px-4 py-4 text-left flex items-center justify-between hover:bg-gray-50 transition-colors"
             >
               <div>
-                <p className="text-sm font-medium text-gray-800">{company.name}</p>
-                <p className="text-xs text-gray-400 mt-0.5">{company.industry} · {company.note}</p>
+                <p className="text-sm font-bold text-gray-800">{company.name}</p>
+                <p className="text-xs text-gray-500 mt-0.5">{company.industry}／{company.note}</p>
               </div>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" className="shrink-0 text-gray-300">
-                <path d="M9 18l6-6-6-6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                <path d="M9 18l6-6-6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
               </svg>
             </button>
           ))}
@@ -89,18 +95,21 @@ export default function SearchPage() {
 
       {/* 企業詳細モーダル */}
       {selected && selectedCompany && (
-        <div className="fixed inset-0 z-50 flex items-end" onClick={() => setSelected(null)}>
-          <div className="absolute inset-0 bg-black/20" />
+        <div className="fixed inset-0 z-50 flex items-end justify-center" onClick={() => setSelected(null)}>
+          <div className="absolute inset-0 bg-black/30" />
           <div
-            className="relative bg-white w-full px-6 pt-6 pb-10 rounded-t-2xl"
+            className="relative bg-white w-full max-w-2xl px-6 pt-6 pb-10 rounded-t-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="w-10 h-1 bg-gray-200 rounded-full mx-auto mb-6" />
-            <p className="text-xs text-gray-400 mb-1">{selectedCompany.industry}</p>
-            <h2 className="text-xl font-medium text-gray-800 mb-2">{selectedCompany.name}</h2>
-            <p className="text-sm text-gray-500 mb-8">{selectedCompany.note}</p>
+            <p className="text-xs text-gray-500 mb-1">{selectedCompany.industry}</p>
+            <h2 className="text-xl font-bold text-gray-800 mb-2">{selectedCompany.name}</h2>
+            <p className="text-sm text-gray-600 mb-8 leading-relaxed">{selectedCompany.note}</p>
 
-            <p className="text-xs text-gray-400 mb-3 tracking-widest uppercase">求人サイトで見る</p>
+            <div className="flex items-center gap-2 mb-3">
+              <span className="w-1 h-3.5 bg-[#C8102E]" />
+              <p className="text-[13px] font-bold text-gray-700">求人サイトで詳細を見る</p>
+            </div>
             <div className="flex flex-col gap-3">
               <a
                 href={mynaviUrl(selectedCompany.name)}

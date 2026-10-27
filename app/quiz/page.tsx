@@ -35,7 +35,7 @@ export default function QuizPage() {
           </div>
           <div className="w-full bg-gray-100 rounded-full h-2">
             <div
-              className="bg-[#E94560] h-2 rounded-full transition-all duration-300"
+              className="bg-[#C8102E] h-2 rounded-full transition-all duration-300"
               style={{ width: `${progress}%` }}
             />
           </div>
@@ -53,7 +53,7 @@ export default function QuizPage() {
             <button
               key={opt.value}
               onClick={() => handleSelect(opt.value)}
-              className="w-full text-left px-6 py-4 rounded-xl border-2 border-gray-200 text-[#1A1A2E] font-medium hover:border-[#E94560] hover:bg-[#FFF0F3] transition-all duration-150"
+              className="w-full text-left px-6 py-4 rounded border border-gray-200 text-[#1A1A2E] font-medium hover:border-[#C8102E] hover:bg-[#FDF0F2] transition-all duration-150"
             >
               {opt.label}
             </button>

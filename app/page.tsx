@@ -6,51 +6,84 @@ export default function Home() {
   const router = useRouter();
 
   return (
-    <main className="min-h-screen bg-[#F5F5F0]" style={{ fontFamily: "'Helvetica Neue', Arial, 'Hiragino Sans', 'Yu Gothic', sans-serif" }}>
-      {/* ヒーローセクション */}
-      <div className="bg-[#1A1A2E] px-6 pt-16 pb-20">
-        <div className="max-w-xl mx-auto text-center">
-          <p className="text-xs tracking-[0.3em] text-gray-500 mb-6 uppercase">AI Career Navigator</p>
-          <h1 className="text-5xl font-light text-white mb-5 tracking-tight">ガクチカナビ</h1>
-          <p className="text-gray-400 text-sm mb-10 leading-relaxed">
-            得意・好き × 志望業界 × 職種を掛け合わせて<br />
-            あなたに最適なガクチカをAIが提案します
+    <main className="min-h-screen bg-[#F2F4F8]">
+      {/* ヒーロー */}
+      <div className="bg-[#1A1A2E]">
+        <div className="max-w-2xl mx-auto px-5 pt-12 pb-10">
+          <div className="inline-block bg-[#C8102E] text-white text-[11px] font-bold px-2.5 py-1 mb-4">
+            新卒就活生向け・無料
+          </div>
+          <h1 className="text-[28px] leading-snug font-bold text-white mb-3">
+            何をガクチカにすべきか、<br />AIが3分で教えてくれる。
+          </h1>
+          <p className="text-gray-300 text-sm leading-relaxed mb-7">
+            あなたの強みと志望業界・職種を掛け合わせ、<br className="hidden sm:block" />
+            選考で評価されるガクチカをAIが提案します。
           </p>
           <button
             onClick={() => router.push("/start")}
-            className="bg-white text-[#1A1A2E] text-sm font-medium px-10 py-3 hover:bg-gray-100 transition-colors"
+            className="inline-flex items-center gap-2 bg-[#C8102E] text-white text-[15px] font-bold px-8 py-3.5 rounded hover:bg-[#a60d26] transition-colors"
           >
-            診断を始める
+            無料で診断を始める
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <path d="M5 12h14M13 6l6 6-6 6" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
           </button>
-          <p className="text-gray-600 text-xs mt-4">所要時間 約3分 · 無料</p>
+          <p className="text-gray-500 text-xs mt-3">所要時間 約3分／登録不要</p>
         </div>
       </div>
 
-      {/* サービス説明 */}
-      <div className="max-w-xl mx-auto px-6 py-14">
-        <p className="text-xs tracking-[0.2em] text-gray-400 mb-8 uppercase">How it works</p>
-        <div className="flex flex-col gap-6">
+      <div className="max-w-2xl mx-auto px-4 py-8">
+        {/* こんな悩み */}
+        <section className="bg-white border border-gray-200 rounded-md p-5 mb-8">
+          <p className="text-sm font-bold text-gray-800 mb-4">こんな悩みはありませんか？</p>
+          <ul className="flex flex-col gap-3">
+            {[
+              "そもそも何をガクチカにすればいいか分からない",
+              "ありきたりなエピソードしか書けない",
+              "志望業界に刺さる強みが分からない",
+            ].map((t, i) => (
+              <li key={i} className="flex items-start gap-2.5">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="shrink-0 mt-0.5">
+                  <circle cx="12" cy="12" r="10" stroke="#C8102E" strokeWidth="1.6" />
+                  <path d="M12 8v5M12 16v.5" stroke="#C8102E" strokeWidth="1.8" strokeLinecap="round" />
+                </svg>
+                <span className="text-sm text-gray-700 leading-relaxed">{t}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        {/* 使い方 */}
+        <div className="flex items-center gap-2 mb-4 px-1">
+          <span className="w-1 h-4 bg-[#C8102E]" />
+          <h2 className="text-sm font-bold text-gray-800">診断の流れ</h2>
+        </div>
+        <section className="bg-white border border-gray-200 rounded-md divide-y divide-gray-100 mb-8">
           {[
-            { num: "01", title: "強みを診断", desc: "10問の選択式で得意・好きを分析" },
-            { num: "02", title: "志望を入力", desc: "業界と職種を選択するだけ" },
-            { num: "03", title: "AIが提案", desc: "理由と始め方つきでガクチカをTOP3提案" },
+            { num: "1", title: "強みを診断", desc: "10問の質問に答えて、あなたの行動特性を分析します。" },
+            { num: "2", title: "志望を入力", desc: "気になる業界と職種を選ぶだけ。" },
+            { num: "3", title: "AIが提案", desc: "理由・始め方・面接フレーム付きで3つ提案します。" },
           ].map((item) => (
-            <div key={item.num} className="flex items-start gap-5 pb-6 border-b border-gray-200 last:border-0">
-              <span className="text-xs text-gray-300 tracking-widest pt-1 w-6 shrink-0">{item.num}</span>
+            <div key={item.num} className="flex items-start gap-4 px-5 py-4">
+              <span className="w-7 h-7 shrink-0 bg-[#1A1A2E] text-white text-sm font-bold flex items-center justify-center rounded-full">
+                {item.num}
+              </span>
               <div>
-                <p className="text-sm font-medium text-gray-800 mb-1">{item.title}</p>
-                <p className="text-xs text-gray-400">{item.desc}</p>
+                <p className="text-sm font-bold text-gray-800">{item.title}</p>
+                <p className="text-[13px] text-gray-500 mt-0.5 leading-relaxed">{item.desc}</p>
               </div>
             </div>
           ))}
-        </div>
+        </section>
 
         <button
           onClick={() => router.push("/start")}
-          className="mt-12 w-full bg-[#1A1A2E] text-white text-sm font-medium py-4 hover:bg-[#2a2a4e] transition-colors"
+          className="w-full bg-[#C8102E] text-white text-[15px] font-bold py-4 rounded hover:bg-[#a60d26] transition-colors"
         >
-          今すぐ診断する
+          無料で診断を始める
         </button>
+        <p className="text-xs text-gray-400 text-center mt-6">ガクチカナビ v1.0</p>
       </div>
     </main>
   );
