@@ -57,8 +57,11 @@ export default function Home() {
                     backfaceVisibility: "hidden",
                   }}
                 >
-                  <span className="text-gray-500 text-4xl mb-3">🚪</span>
-                  <span className="text-gray-400 text-xs">クリックして開く</span>
+                  <span className="text-[#E94560] text-xs font-bold mb-2 tracking-widest">STEP {i + 1}</span>
+                  <span className="text-3xl mb-3">{door.icon}</span>
+                  <p className="text-white text-sm font-bold mb-1">{door.title}</p>
+                  <p className="text-gray-500 text-xs">{door.sub}</p>
+                  <span className="text-gray-600 text-xs mt-4">クリックして開く</span>
                 </div>
 
                 {/* 扉の内側（開いた状態） */}
