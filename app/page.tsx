@@ -44,20 +44,6 @@ export default function Home() {
         </div>
       </div>
 
-      {/* 診断バナー */}
-      <div className="max-w-2xl mx-auto px-4 pt-3">
-        <button onClick={() => router.push("/start")} className="w-full text-left bg-[#0A3059] rounded flex items-center gap-3 px-4 py-3.5 hover:bg-[#0c3a6e] transition-colors">
-          <span className="shrink-0 w-10 h-10 rounded bg-[#0096DF] flex items-center justify-center">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="#fff"><path d="M19 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V5a2 2 0 00-2-2zm-7 3l1.9 3.8 4.1.6-3 2.9.7 4.1-3.7-2-3.7 2 .7-4.1-3-2.9 4.1-.6L12 6z"/></svg>
-          </span>
-          <div className="flex-1">
-            <p className="text-sm font-medium text-white">AIが3分であなたのガクチカを提案</p>
-            <p className="text-[12px] text-blue-200 mt-0.5">10問に答えるだけ・無料</p>
-          </div>
-          <span className="text-[#0096DF] text-xs font-medium shrink-0">診断 ›</span>
-        </button>
-      </div>
-
       {/* ツール */}
       <div className="max-w-2xl mx-auto px-4 pt-3">
         <div className="bg-white rounded border border-gray-200 grid grid-cols-4 divide-x divide-gray-100">
