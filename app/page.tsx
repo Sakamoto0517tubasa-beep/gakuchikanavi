@@ -2,9 +2,6 @@
 
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { companies, categories } from "@/lib/companies";
-import CompanyLogo from "@/components/CompanyLogo";
-import { useState } from "react";
 
 const tools = [
   { label: "ガクチカ診断", href: "/start",
@@ -17,10 +14,14 @@ const tools = [
     icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0A3059" strokeWidth="1.8"><circle cx="12" cy="8" r="4"/><path d="M5 20c0-3.9 3.1-7 7-7s7 3.1 7 7" strokeLinecap="round"/></svg> },
 ];
 
+const steps = [
+  { num: "1", title: "強みを診断", desc: "10問の質問に答えて行動特性を分析" },
+  { num: "2", title: "志望を入力", desc: "気になる業界と職種を選ぶだけ" },
+  { num: "3", title: "AIが提案", desc: "理由・始め方・面接フレーム付きで3つ提案" },
+];
+
 export default function Home() {
   const router = useRouter();
-  const [cat, setCat] = useState("すべて");
-  const list = companies.filter((c) => cat === "すべて" || c.category === cat).slice(0, 10);
 
   return (
     <main className="min-h-screen bg-[#F2F3F5]">
@@ -36,7 +37,7 @@ export default function Home() {
       <div className="bg-white px-4 py-3 border-b border-gray-200">
         <div className="max-w-2xl mx-auto grid grid-cols-2 gap-3">
           <button onClick={() => router.push("/start")} className="bg-[#F08300] text-white text-sm font-medium py-3 rounded flex items-center justify-center gap-1.5 hover:bg-[#d97600] transition-colors">
-            診断を始める<span className="text-[10px] font-medium bg-white/25 px-1.5 py-px rounded-sm">無料</span>
+            診断を始める<span className="text-[10px] bg-white/25 px-1.5 py-px rounded-sm">無料</span>
           </button>
           <button onClick={() => router.push("/mypage")} className="bg-white border border-[#0A3059] text-[#0A3059] text-sm font-medium py-3 rounded hover:bg-gray-50 transition-colors">
             マイページ
@@ -50,48 +51,41 @@ export default function Home() {
           {tools.map((t) => (
             <Link key={t.label} href={t.href} className="flex flex-col items-center gap-1.5 py-3 hover:bg-gray-50 transition-colors">
               <span className="w-9 h-9 rounded-full bg-[#EAF4FB] flex items-center justify-center">{t.icon}</span>
-              <span className="text-[10.5px] font-medium text-[#0A3059]">{t.label}</span>
+              <span className="text-[10.5px] text-[#0A3059]">{t.label}</span>
             </Link>
           ))}
         </div>
       </div>
 
-      {/* 注目の企業 */}
-      <div className="max-w-2xl mx-auto px-4 pt-5 pb-8">
-        <div className="flex items-center justify-between mb-2.5">
-          <h2 className="text-[15px] font-medium text-[#0A3059] flex items-center gap-2">
-            <span className="w-1 h-4 bg-[#0096DF]" />注目の企業
-          </h2>
-          <Link href="/search" className="text-[12px] text-[#0096DF] font-medium">すべて見る ›</Link>
-        </div>
-
-        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-          {categories.map((c) => (
-            <button key={c} onClick={() => setCat(c)}
-              className={`shrink-0 text-xs font-medium px-3 py-1.5 rounded-full border transition-colors ${cat === c ? "bg-[#0A3059] text-white border-[#0A3059]" : "bg-white text-gray-600 border-gray-300"}`}>
-              {c}
-            </button>
-          ))}
-        </div>
-
-        <div className="bg-white rounded border border-gray-200 divide-y divide-gray-100 mt-1">
-          {list.map((c) => (
-            <Link key={c.name} href="/search" className="flex items-center gap-3 px-3.5 py-3 hover:bg-gray-50 transition-colors">
-              <CompanyLogo name={c.name} category={c.category} size={42} />
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-gray-800 truncate">{c.name}</p>
-                <div className="flex items-center gap-1.5 mt-1">
-                  <span className="text-[10px] text-[#0096DF] border border-[#9fd3ef] bg-[#EAF4FB] rounded-sm px-1 py-px shrink-0 whitespace-nowrap">{c.category}</span>
-                  <span className="text-[11px] text-gray-500 truncate">{c.note}</span>
+      {/* 診断の流れ */}
+      <div className="max-w-2xl mx-auto px-4 pt-5">
+        <h2 className="text-[14px] text-[#0A3059] mb-2.5 flex items-center gap-2">
+          <span className="w-1 h-4 bg-[#0096DF]" />ガクチカ診断について
+        </h2>
+        <div className="bg-white rounded border border-gray-200 px-4 py-4">
+          <p className="text-[13px] text-gray-600 leading-relaxed mb-4">
+            あなたの強み・志望業界・職種をもとに、選考で評価されるガクチカをAIが<span className="text-[#0096DF] font-medium">3つ</span>提案します。所要時間は約3分、登録も不要です。
+          </p>
+          <div className="flex flex-col gap-3">
+            {steps.map((s) => (
+              <div key={s.num} className="flex items-start gap-3">
+                <span className="w-6 h-6 shrink-0 rounded-full bg-[#0A3059] text-white text-xs flex items-center justify-center">{s.num}</span>
+                <div>
+                  <p className="text-sm text-gray-800">{s.title}</p>
+                  <p className="text-xs text-gray-500 mt-0.5">{s.desc}</p>
                 </div>
               </div>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="#c7cdd4" className="shrink-0"><path d="M9.29 6.71a1 1 0 000 1.41L13.17 12l-3.88 3.88a1 1 0 101.42 1.41l4.58-4.58a1 1 0 000-1.41L10.71 6.7a1 1 0 00-1.42.01z"/></svg>
-            </Link>
-          ))}
+            ))}
+          </div>
         </div>
-        <Link href="/search" className="mt-3 block text-center bg-white border border-[#0A3059] rounded py-3 text-sm font-medium text-[#0A3059] hover:bg-gray-50 transition-colors">
-          544社をすべて見る ›
-        </Link>
+      </div>
+
+      {/* 開始ボタン */}
+      <div className="max-w-2xl mx-auto px-4 pt-5 pb-8">
+        <button onClick={() => router.push("/start")} className="w-full bg-[#F08300] text-white text-[15px] font-medium py-4 rounded hover:bg-[#d97600] transition-colors">
+          診断を始める（無料）
+        </button>
+        <p className="text-[11px] text-gray-400 text-center mt-4">ガクチカナビ v1.0</p>
       </div>
     </main>
   );
