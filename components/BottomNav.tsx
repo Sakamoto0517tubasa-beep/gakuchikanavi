@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-const ACTIVE = "#0068B7";
+const ACTIVE = "#0A3059";
 const INACTIVE = "#9aa5b1";
 
 const tabs = [
@@ -59,7 +59,7 @@ export default function BottomNav() {
           return (
             <Link key={tab.href} href={tab.href} className="flex flex-col items-center gap-0.5 w-16 pt-1">
               {tab.icon(active ? ACTIVE : INACTIVE)}
-              <span className={`text-[11px] ${active ? "text-[#0068B7] font-bold" : "text-gray-400"}`}>
+              <span className={`text-[11px] ${active ? "text-[#0A3059] font-bold" : "text-gray-400"}`}>
                 {tab.label}
               </span>
             </Link>

@@ -14,8 +14,8 @@ type Suggestion = {
 };
 
 const RANK_CONFIG = [
-  { label: "イチオシ", bg: "#EA5520", text: "white" },
-  { label: "2番目", bg: "#0068B7", text: "white" },
+  { label: "イチオシ", bg: "#F08300", text: "white" },
+  { label: "2番目", bg: "#0A3059", text: "white" },
   { label: "3番目", bg: "#5b7a9a", text: "white" },
 ];
 
@@ -53,7 +53,7 @@ export default function ResultPage() {
     return (
       <main className="min-h-screen bg-[#F2F4F8] flex flex-col items-center justify-center px-4">
         <div className="text-center">
-          <div className="w-12 h-12 border-2 border-[#0068B7] border-t-transparent rounded-full animate-spin mx-auto mb-6" />
+          <div className="w-12 h-12 border-2 border-[#0096DF] border-t-transparent rounded-full animate-spin mx-auto mb-6" />
           <p className="text-[#1A1A2E] font-bold text-lg">AIが分析中</p>
           <p className="text-gray-500 text-sm mt-2">あなたの強みと志望を掛け合わせています...</p>
         </div>
@@ -73,9 +73,9 @@ export default function ResultPage() {
   return (
     <main className="min-h-screen bg-[#EEF1F5] pb-24">
       {/* ヘッダー */}
-      <div className="bg-gradient-to-b from-[#0068B7] to-[#004f8c]">
+      <div className="bg-[#0A3059]">
         <div className="max-w-2xl mx-auto px-5 pt-12 pb-7">
-          <div className="inline-block bg-[#EA5520] text-white text-[11px] font-bold px-2.5 py-1 rounded-sm mb-3">
+          <div className="inline-block bg-[#F08300] text-white text-[11px] font-bold px-2.5 py-1 rounded-sm mb-3">
             AI診断結果
           </div>
           <h1 className="text-xl font-bold text-white mb-1.5">あなたへのおすすめガクチカ</h1>
@@ -120,11 +120,11 @@ export default function ResultPage() {
               {isOpen && (
                 <div className="border-t border-gray-100 px-5 pb-6 pt-4 flex flex-col gap-5">
                   <div>
-                    <p className="text-[13px] font-bold text-[#0068B7] mb-1.5">なぜあなたに刺さるか</p>
+                    <p className="text-[13px] font-bold text-[#0096DF] mb-1.5">なぜあなたに刺さるか</p>
                     <p className="text-sm text-gray-700 leading-relaxed">{s.reason}</p>
                   </div>
                   <div>
-                    <p className="text-[13px] font-bold text-[#0068B7] mb-1.5">今すぐできる第一歩</p>
+                    <p className="text-[13px] font-bold text-[#0096DF] mb-1.5">今すぐできる第一歩</p>
                     <p className="text-sm text-gray-700 leading-relaxed">{s.howToStart}</p>
                   </div>
                   <div className="bg-[#F2F4F8] border border-gray-100 px-4 py-4 rounded">
