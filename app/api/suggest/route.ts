@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import Anthropic from "@anthropic-ai/sdk";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
-const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
 const ANSWER_LABELS: Record<string, string> = {
   gather_people: "すぐに人を集めて話し合う",
@@ -84,7 +84,7 @@ ${answerSummary}
 - 今すぐ始められる現実的な行動を提案する
 - 現在のガクチカがある場合は、それを改善・発展させる提案も含める
 
-以下のJSON形式で回答してください（余分なテキストなし）:
+以下のJSON形式のみで回答してください（前後に余分なテキストや\`\`\`は不要）:
 {
   "suggestions": [
     {
@@ -95,18 +95,14 @@ ${answerSummary}
       "howToStart": "今日からできる具体的な第一歩。サービス名・場所・方法を明記（100字以内）",
       "script": "面接でこのガクチカをどう話すかのフレーム例（STAR形式で80字以内）",
       "period": "推奨活動期間"
-    },
-    ...（3つ）
+    }
   ]
 }`;
 
-    const message = await client.messages.create({
-      model: "claude-haiku-4-5",
-      max_tokens: 1500,
-      messages: [{ role: "user", content: prompt }],
-    });
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const result = await model.generateContent(prompt);
+    const text = result.response.text();
 
-    const text = message.content[0].type === "text" ? message.content[0].text : "";
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     if (!jsonMatch) throw new Error("JSON not found in response");
 
