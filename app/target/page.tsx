@@ -80,7 +80,7 @@ export default function TargetPage() {
 
         <button
           onClick={handleSubmit}
-          disabled={!grade || !industry || !jobType}
+          disabled={!industry || !jobType}
           className="w-full bg-[#F08300] text-white text-[15px] font-bold py-4 rounded disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[#d97600] transition-colors"
         >
           AIに提案してもらう →
