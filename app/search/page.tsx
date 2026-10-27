@@ -8,7 +8,7 @@ function mynaviUrl(name: string) {
 }
 
 function rikunaviUrl(name: string) {
-  return `https://job.rikunabi.com/2028/search/company/?keyword=${encodeURIComponent(name)}`;
+  return `https://job.rikunabi.com/2028/company/search/?free=${encodeURIComponent(name)}&searchType=1`;
 }
 
 export default function SearchPage() {
