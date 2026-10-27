@@ -10,8 +10,8 @@ const SITES = [
     color: "#E60012",
     getUrl: (q: string) =>
       q
-        ? `https://job.mynavi.jp/28/pc/search/corp/index.html?keyword=${encodeURIComponent(q)}`
-        : "https://job.mynavi.jp/28/",
+        ? `https://job.mynavi.jp/28/pc/corpinfo/searchCorpListByGenCond/index/?cond=FW:${encodeURIComponent(q)}/func=PCTopQuickSearch/FWTGT:1`
+        : "https://job.mynavi.jp/28/pc/",
   },
   {
     name: "リクナビ2028",
@@ -21,7 +21,7 @@ const SITES = [
     getUrl: (q: string) =>
       q
         ? `https://job.rikunabi.com/2028/search/company/?keyword=${encodeURIComponent(q)}`
-        : "https://job.rikunabi.com/2028/",
+        : "https://job.rikunabi.com/",
   },
   {
     name: "ONE CAREER",
