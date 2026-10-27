@@ -34,7 +34,7 @@ export default function TargetPage() {
                 onClick={() => setIndustry(ind)}
                 className={`px-4 py-3 rounded border text-sm font-medium transition-all ${
                   industry === ind
-                    ? "border-[#C8102E] bg-[#FDF0F2] text-[#C8102E]"
+                    ? "border-[#0068B7] bg-[#EAF3FB] text-[#0068B7]"
                     : "border-gray-200 text-gray-600 hover:border-gray-300"
                 }`}
               >
@@ -54,7 +54,7 @@ export default function TargetPage() {
                 onClick={() => setJobType(job)}
                 className={`px-4 py-3 rounded border text-sm font-medium transition-all ${
                   jobType === job
-                    ? "border-[#C8102E] bg-[#FDF0F2] text-[#C8102E]"
+                    ? "border-[#0068B7] bg-[#EAF3FB] text-[#0068B7]"
                     : "border-gray-200 text-gray-600 hover:border-gray-300"
                 }`}
               >
@@ -74,14 +74,14 @@ export default function TargetPage() {
             onChange={(e) => setCurrentGakuchika(e.target.value)}
             placeholder="例：アルバイトでホールスタッフをしています"
             rows={3}
-            className="w-full border border-gray-200 rounded px-4 py-3 text-sm text-gray-700 focus:outline-none focus:border-[#C8102E] resize-none"
+            className="w-full border border-gray-200 rounded px-4 py-3 text-sm text-gray-700 focus:outline-none focus:border-[#0068B7] resize-none"
           />
         </div>
 
         <button
           onClick={handleSubmit}
           disabled={!industry || !jobType}
-          className="w-full bg-[#C8102E] text-white text-[15px] font-bold py-4 rounded disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[#a60d26] transition-colors"
+          className="w-full bg-[#EA5520] text-white text-[15px] font-bold py-4 rounded-full disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[#d4491a] transition-colors"
         >
           AIに提案してもらう →
         </button>

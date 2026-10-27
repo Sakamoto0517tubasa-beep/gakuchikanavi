@@ -60,7 +60,7 @@ export default function StartPage() {
 
   return (
     <main
-      className={`min-h-screen bg-[#F2F4F8] flex flex-col items-center justify-center px-6 transition-opacity duration-500 ${leaving ? "opacity-0" : "opacity-100"}`}
+      className={`min-h-screen bg-[#EEF1F5] flex flex-col items-center justify-center px-6 transition-opacity duration-500 ${leaving ? "opacity-0" : "opacity-100"}`}
       style={{ fontFamily: "'Helvetica Neue', Arial, 'Hiragino Sans', 'Yu Gothic', sans-serif" }}
     >
       <div className="text-center mb-12">
@@ -111,7 +111,7 @@ export default function StartPage() {
               {/* 開いた後 */}
               <div
                 className={`absolute inset-0 border-2 transition-all duration-300 flex flex-col items-center justify-center gap-3 ${
-                  isOpen ? "border-[#C8102E] bg-[#1A1A2E] opacity-100" : "opacity-0 border-gray-200"
+                  isOpen ? "border-[#0068B7] bg-[#0068B7] opacity-100" : "opacity-0 border-gray-200"
                 }`}
               >
                 <div className="text-white">{door.icon}</div>

@@ -31,10 +31,15 @@ export default function SearchPage() {
   const selectedCompany = companies.find((c) => c.name === selected);
 
   return (
-    <main className="min-h-screen bg-[#F2F4F8]">
+    <main className="min-h-screen bg-[#EEF1F5]">
+      <header className="bg-white border-b border-gray-200">
+        <div className="max-w-2xl mx-auto px-4 h-12 flex items-center">
+          <span className="text-[17px] font-bold text-[#0068B7] tracking-tight">ガクチカナビ</span>
+        </div>
+      </header>
       {/* ヘッダー・検索 */}
       <div className="bg-white border-b border-gray-200 sticky top-0 z-10">
-        <div className="max-w-2xl mx-auto px-4 pt-10 pb-3">
+        <div className="max-w-2xl mx-auto px-4 pt-4 pb-3">
           <h1 className="text-lg font-bold text-gray-800 mb-3">企業検索</h1>
           <div className="relative mb-3">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
@@ -46,7 +51,7 @@ export default function SearchPage() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="企業名・業界・キーワード"
-              className="w-full bg-[#F2F4F8] rounded text-sm text-gray-700 pl-9 pr-10 py-3 focus:outline-none focus:ring-1 focus:ring-[#C8102E] placeholder-gray-400"
+              className="w-full bg-[#EEF1F5] rounded-full text-sm text-gray-700 pl-9 pr-10 py-3 focus:outline-none focus:ring-1 focus:ring-[#0068B7] placeholder-gray-400"
             />
             {query && (
               <button onClick={() => setQuery("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-lg">×</button>
@@ -60,8 +65,8 @@ export default function SearchPage() {
                 onClick={() => setCategory(cat)}
                 className={`shrink-0 text-xs font-medium px-3 py-1.5 rounded-full transition-colors ${
                   category === cat
-                    ? "bg-[#1A1A2E] text-white"
-                    : "bg-gray-100 text-gray-500 hover:bg-gray-200"
+                    ? "bg-[#0068B7] text-white"
+                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                 }`}
               >
                 {cat}
@@ -107,7 +112,7 @@ export default function SearchPage() {
             <p className="text-sm text-gray-600 mb-8 leading-relaxed">{selectedCompany.note}</p>
 
             <div className="flex items-center gap-2 mb-3">
-              <span className="w-1 h-3.5 bg-[#C8102E]" />
+              <span className="w-1 h-3.5 bg-[#0068B7]" />
               <p className="text-[13px] font-bold text-gray-700">求人サイトで詳細を見る</p>
             </div>
             <div className="flex flex-col gap-3">
