@@ -12,22 +12,20 @@ export default function ScoutPage() {
           <span className="text-[17px] font-bold text-[#0068B7] tracking-tight">ガクチカナビ</span>
         </div>
       </header>
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-2xl mx-auto px-4 pt-4 pb-4">
-          <h1 className="text-lg font-bold text-gray-800">スカウト</h1>
-          <p className="text-[13px] text-gray-500 mt-1">企業からのオファーが届きます</p>
+      <div className="bg-gradient-to-br from-[#0071c5] to-[#004a84] relative overflow-hidden">
+        <div className="absolute -right-8 -top-10 w-36 h-36 rounded-full bg-white/10" />
+        <div className="max-w-2xl mx-auto px-5 py-6 relative">
+          <h1 className="text-xl font-bold text-white">スカウト</h1>
+          <p className="text-[13px] text-blue-100 mt-1">企業からのオファーが届きます</p>
+          <div className="mt-4 inline-flex items-center gap-2 bg-white/15 rounded-full px-4 py-1.5">
+            <span className="text-[13px] text-white font-medium">未読</span>
+            <span className="text-lg font-bold text-white leading-none">2</span>
+            <span className="text-[11px] text-blue-100">件</span>
+          </div>
         </div>
       </div>
 
       <div className="max-w-2xl mx-auto px-4 py-5">
-        {/* 未読サマリ */}
-        <div className="bg-[#0068B7] text-white px-4 py-3.5 rounded-lg mb-5 flex items-center justify-between">
-          <span className="text-sm font-medium">未読のスカウト</span>
-          <span className="flex items-baseline gap-1">
-            <span className="text-2xl font-bold">2</span>
-            <span className="text-xs text-blue-100">件</span>
-          </span>
-        </div>
 
         <div className="bg-white border border-gray-200 rounded-lg divide-y divide-gray-100 overflow-hidden">
           {scouts.map((s, i) => (
