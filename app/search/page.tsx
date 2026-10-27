@@ -4,24 +4,24 @@ import { useState } from "react";
 
 const SITES = [
   {
-    name: "マイナビ2027",
+    name: "マイナビ2028",
     desc: "新卒就活の定番",
     tag: "新卒",
     color: "#E60012",
     getUrl: (q: string) =>
       q
-        ? `https://job.mynavi.jp/27/pc/search/corp/index.html?keyword=${encodeURIComponent(q)}`
-        : "https://job.mynavi.jp/27/",
+        ? `https://job.mynavi.jp/28/pc/search/corp/index.html?keyword=${encodeURIComponent(q)}`
+        : "https://job.mynavi.jp/28/",
   },
   {
-    name: "リクナビ2027",
+    name: "リクナビ2028",
     desc: "大手・有名企業が充実",
     tag: "新卒",
     color: "#0066CC",
     getUrl: (q: string) =>
       q
-        ? `https://job.rikunabi.com/2027/search/company/?keyword=${encodeURIComponent(q)}`
-        : "https://job.rikunabi.com/2027/",
+        ? `https://job.rikunabi.com/2028/search/company/?keyword=${encodeURIComponent(q)}`
+        : "https://job.rikunabi.com/2028/",
   },
   {
     name: "ONE CAREER",
