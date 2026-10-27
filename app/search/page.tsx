@@ -4,30 +4,30 @@ import { useState } from "react";
 
 const SITES = [
   {
-    name: "マイナビ",
+    name: "マイナビ2027",
     desc: "新卒就活の定番",
     tag: "新卒",
     color: "#E60012",
     getUrl: (q: string) =>
       q
-        ? `https://job.mynavi.jp/26/pc/search/corp/index.html?keyword=${encodeURIComponent(q)}`
-        : "https://job.mynavi.jp/26/",
+        ? `https://job.mynavi.jp/27/pc/search/corp/index.html?keyword=${encodeURIComponent(q)}`
+        : "https://job.mynavi.jp/27/",
   },
   {
-    name: "リクナビ",
+    name: "リクナビ2027",
     desc: "大手・有名企業が充実",
     tag: "新卒",
     color: "#0066CC",
     getUrl: (q: string) =>
       q
-        ? `https://job.rikunabi.com/2026/search/company/?keyword=${encodeURIComponent(q)}`
-        : "https://job.rikunabi.com/2026/",
+        ? `https://job.rikunabi.com/2027/search/company/?keyword=${encodeURIComponent(q)}`
+        : "https://job.rikunabi.com/2027/",
   },
   {
     name: "ONE CAREER",
     desc: "選考情報・ES公開",
     tag: "新卒",
-    color: "#1A1A2E",
+    color: "#222222",
     getUrl: (q: string) =>
       q
         ? `https://www.onecareer.jp/companies?keyword=${encodeURIComponent(q)}`
@@ -42,6 +42,16 @@ const SITES = [
       q
         ? `https://job.career-tasu.jp/search/company/?keyword=${encodeURIComponent(q)}`
         : "https://job.career-tasu.jp/",
+  },
+  {
+    name: "あさがくナビ",
+    desc: "中小・穴場企業に強い",
+    tag: "新卒",
+    color: "#5BAD6F",
+    getUrl: (q: string) =>
+      q
+        ? `https://www.asagaku.com/shushoku/kensaku_kekka.html?keyword=${encodeURIComponent(q)}`
+        : "https://www.asagaku.com/",
   },
   {
     name: "Wantedly",
@@ -72,16 +82,6 @@ const SITES = [
       q
         ? `https://www.openwork.jp/search.php?word=${encodeURIComponent(q)}`
         : "https://www.openwork.jp/",
-  },
-  {
-    name: "あさがくナビ",
-    desc: "中小・穴場企業",
-    tag: "新卒",
-    color: "#5BAD6F",
-    getUrl: (q: string) =>
-      q
-        ? `https://www.asagaku.com/shushoku/kensaku_kekka.html?keyword=${encodeURIComponent(q)}`
-        : "https://www.asagaku.com/",
   },
 ];
 
