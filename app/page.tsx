@@ -3,64 +3,88 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
+const doors = [
+  { icon: "🎯", title: "得意・好きを診断", sub: "10問の選択式" },
+  { icon: "🏢", title: "志望を入力", sub: "業界×職種を選択" },
+  { icon: "✨", title: "AIが提案", sub: "理由＋始め方付き" },
+];
+
 export default function Home() {
   const router = useRouter();
-  const [opening, setOpening] = useState(false);
+  const [opened, setOpened] = useState<number[]>([]);
+  const [leaving, setLeaving] = useState(false);
 
-  function handleOpen() {
-    setOpening(true);
-    setTimeout(() => router.push("/quiz"), 800);
+  function handleDoor(i: number) {
+    setOpened((prev) => {
+      if (prev.includes(i)) return prev;
+      const next = [...prev, i];
+      if (next.length === 3) {
+        setTimeout(() => {
+          setLeaving(true);
+          setTimeout(() => router.push("/quiz"), 600);
+        }, 600);
+      }
+      return next;
+    });
   }
 
   return (
     <main className="min-h-screen bg-[#1A1A2E] flex flex-col items-center justify-center px-4 overflow-hidden">
-      {/* 扉アニメーション */}
-      <div className={`fixed inset-0 z-50 flex pointer-events-none transition-all duration-700 ${opening ? "opacity-0" : "opacity-0"}`}>
-        <div className={`w-1/2 h-full bg-[#1A1A2E] transition-transform duration-700 ${opening ? "-translate-x-full" : "translate-x-0"}`} />
-        <div className={`w-1/2 h-full bg-[#1A1A2E] transition-transform duration-700 ${opening ? "translate-x-full" : "translate-x-0"}`} />
-      </div>
-
-      <div className={`max-w-2xl w-full text-center transition-opacity duration-300 ${opening ? "opacity-0" : "opacity-100"}`}>
-        {/* ロゴ */}
-        <p className="text-[#E94560] text-sm tracking-widest mb-4 uppercase">AI Career Navigator</p>
-        <h1 className="text-6xl font-bold text-white mb-6">ガクチカナビ</h1>
-        <p className="text-[#E94560] text-lg italic mb-10">
+      <div className={`w-full max-w-2xl text-center transition-opacity duration-500 ${leaving ? "opacity-0" : "opacity-100"}`}>
+        <p className="text-[#E94560] text-xs tracking-widest mb-3 uppercase">AI Career Navigator</p>
+        <h1 className="text-5xl font-bold text-white mb-3">ガクチカナビ</h1>
+        <p className="text-[#E94560] text-sm italic mb-10">
           「学歴は変えられないけど、ガクチカは変えられる。」
         </p>
-        <p className="text-gray-400 text-sm mb-14 leading-relaxed">
-          得意・好き × 志望業界 × 職種をAIが掛け合わせて<br />
-          あなたに最適なガクチカをTOP3で提案します
-        </p>
 
-        {/* 扉ボタン */}
-        <button
-          onClick={handleOpen}
-          className="group relative inline-flex items-center gap-3 bg-transparent border-2 border-[#E94560] text-white text-lg font-bold px-12 py-5 rounded-none hover:bg-[#E94560] transition-all duration-300"
-        >
-          <span className="text-[#E94560] group-hover:text-white transition-colors">扉を開く</span>
-          <span className="text-[#E94560] group-hover:text-white transition-colors text-2xl">→</span>
-        </button>
+        {/* 3枚の扉 */}
+        <div className="grid grid-cols-3 gap-4 mb-8">
+          {doors.map((door, i) => {
+            const isOpen = opened.includes(i);
+            return (
+              <button
+                key={i}
+                onClick={() => handleDoor(i)}
+                className="relative h-52 perspective-1000 focus:outline-none"
+                style={{ perspective: "1000px" }}
+              >
+                {/* 扉の外側（閉じた状態） */}
+                <div
+                  className="absolute inset-0 flex flex-col items-center justify-center border-2 border-gray-600 bg-[#0F3460] transition-all duration-700"
+                  style={{
+                    transformOrigin: "left center",
+                    transform: isOpen ? "rotateY(-75deg)" : "rotateY(0deg)",
+                    backfaceVisibility: "hidden",
+                  }}
+                >
+                  <span className="text-gray-500 text-4xl mb-3">🚪</span>
+                  <span className="text-gray-400 text-xs">クリックして開く</span>
+                </div>
 
-        <p className="text-gray-600 text-xs mt-6">所要時間：約3分　無料</p>
-
-        {/* ステップ */}
-        <div className="mt-16 grid grid-cols-3 gap-6 text-center border-t border-gray-800 pt-10">
-          <div>
-            <div className="text-2xl mb-2">🎯</div>
-            <p className="text-xs font-bold text-gray-300">得意・好きを診断</p>
-            <p className="text-xs text-gray-600 mt-1">10問の選択式</p>
-          </div>
-          <div>
-            <div className="text-2xl mb-2">🏢</div>
-            <p className="text-xs font-bold text-gray-300">志望を入力</p>
-            <p className="text-xs text-gray-600 mt-1">業界×職種を選択</p>
-          </div>
-          <div>
-            <div className="text-2xl mb-2">✨</div>
-            <p className="text-xs font-bold text-gray-300">AIが提案</p>
-            <p className="text-xs text-gray-600 mt-1">理由＋始め方付き</p>
-          </div>
+                {/* 扉の内側（開いた状態） */}
+                <div
+                  className={`absolute inset-0 flex flex-col items-center justify-center border-2 transition-all duration-500 ${
+                    isOpen ? "border-[#E94560] bg-[#1A1A2E] opacity-100" : "opacity-0"
+                  }`}
+                >
+                  <span className="text-4xl mb-3">{door.icon}</span>
+                  <p className="text-white text-sm font-bold">{door.title}</p>
+                  <p className="text-gray-500 text-xs mt-1">{door.sub}</p>
+                </div>
+              </button>
+            );
+          })}
         </div>
+
+        {opened.length === 0 && (
+          <p className="text-gray-600 text-xs">3つの扉をすべて開くと診断スタート</p>
+        )}
+        {opened.length > 0 && opened.length < 3 && (
+          <p className="text-gray-500 text-xs">あと{3 - opened.length}つ開けてください</p>
+        )}
+        {opened.length === 3 && (
+          <p className="text-[#E94560] text-sm font-bold animate-pulse">診断を始めます...</p>
+        )}
       </div>
     </main>
   );
