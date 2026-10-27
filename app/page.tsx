@@ -20,6 +20,19 @@ const steps = [
   { num: "3", title: "AIが提案", desc: "理由・始め方・面接フレーム付きで3つ提案" },
 ];
 
+const columns = [
+  { tag: "コラム", tagColor: "#0096DF", date: "10/24", title: "ガクチカが思いつかない時の3つの視点" },
+  { tag: "コラム", tagColor: "#0096DF", date: "10/18", title: "「アルバイト経験」を魅力的に伝える書き方" },
+  { tag: "コラム", tagColor: "#0096DF", date: "10/10", title: "業界別・採用担当に刺さるガクチカの特徴" },
+  { tag: "お知らせ", tagColor: "#F08300", date: "10/01", title: "AI診断がリニューアルしました" },
+];
+
+const faqs = [
+  { q: "診断は無料ですか？", a: "はい、登録不要で何度でも無料で利用できます。" },
+  { q: "ガクチカがまだ無くても使えますか？", a: "大丈夫です。今から始められる活動を提案します。" },
+  { q: "診断にはどれくらい時間がかかりますか？", a: "10問・約3分で完了します。" },
+];
+
 export default function Home() {
   const router = useRouter();
 
@@ -81,11 +94,49 @@ export default function Home() {
       </div>
 
       {/* 開始ボタン */}
-      <div className="max-w-2xl mx-auto px-4 pt-5 pb-8">
+      <div className="max-w-2xl mx-auto px-4 pt-5">
         <button onClick={() => router.push("/start")} className="w-full bg-[#F08300] text-white text-[15px] font-medium py-4 rounded hover:bg-[#d97600] transition-colors">
           診断を始める（無料）
         </button>
-        <p className="text-[11px] text-gray-400 text-center mt-4">ガクチカナビ v1.0</p>
+      </div>
+
+      {/* コラム・お知らせ */}
+      <div className="max-w-2xl mx-auto px-4 pt-6">
+        <h2 className="text-[14px] text-[#0A3059] mb-2.5 flex items-center gap-2">
+          <span className="w-1 h-4 bg-[#0096DF]" />就活お役立ちコラム
+        </h2>
+        <div className="bg-white rounded border border-gray-200 divide-y divide-gray-100">
+          {columns.map((c, i) => (
+            <Link key={i} href="/start" className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors">
+              <span className="text-[10px] text-white px-1.5 py-0.5 rounded-sm shrink-0" style={{ backgroundColor: c.tagColor }}>{c.tag}</span>
+              <span className="text-xs text-gray-400 shrink-0">{c.date}</span>
+              <span className="text-[13px] text-gray-700 truncate flex-1">{c.title}</span>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="#c7cdd4" className="shrink-0"><path d="M9.29 6.71a1 1 0 000 1.41L13.17 12l-3.88 3.88a1 1 0 101.42 1.41l4.58-4.58a1 1 0 000-1.41L10.71 6.7a1 1 0 00-1.42.01z"/></svg>
+            </Link>
+          ))}
+        </div>
+      </div>
+
+      {/* よくある質問 */}
+      <div className="max-w-2xl mx-auto px-4 pt-6 pb-8">
+        <h2 className="text-[14px] text-[#0A3059] mb-2.5 flex items-center gap-2">
+          <span className="w-1 h-4 bg-[#0096DF]" />よくある質問
+        </h2>
+        <div className="bg-white rounded border border-gray-200 divide-y divide-gray-100">
+          {faqs.map((f, i) => (
+            <div key={i} className="px-4 py-3.5">
+              <div className="flex gap-2">
+                <span className="text-[#0096DF] text-sm shrink-0">Q.</span>
+                <p className="text-[13px] text-gray-800">{f.q}</p>
+              </div>
+              <div className="flex gap-2 mt-1.5">
+                <span className="text-gray-400 text-sm shrink-0">A.</span>
+                <p className="text-[13px] text-gray-500 leading-relaxed">{f.a}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+        <p className="text-[11px] text-gray-400 text-center mt-8">ガクチカナビ v1.0</p>
       </div>
     </main>
   );
