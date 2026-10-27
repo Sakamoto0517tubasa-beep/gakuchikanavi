@@ -42,6 +42,7 @@ export default function QuizPage() {
         </div>
 
         {/* Question */}
+        <p className="text-xs tracking-widest text-gray-400 uppercase mb-3">{question.category}</p>
         <h2 className="text-xl font-bold text-[#1A1A2E] mb-8 leading-relaxed">
           {question.text}
         </h2>

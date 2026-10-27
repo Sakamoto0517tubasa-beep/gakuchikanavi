@@ -6,26 +6,39 @@ import Link from "next/link";
 type Suggestion = {
   rank: number;
   title: string;
+  tagline: string;
   reason: string;
   howToStart: string;
+  script: string;
   period: string;
 };
+
+const RANK_CONFIG = [
+  { label: "BEST", bg: "#1A1A2E", text: "white" },
+  { label: "2ND", bg: "#3a3a5e", text: "white" },
+  { label: "3RD", bg: "#6b6b9a", text: "white" },
+];
 
 export default function ResultPage() {
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [expanded, setExpanded] = useState<number | null>(0);
+  const [industry, setIndustry] = useState("");
+  const [jobType, setJobType] = useState("");
 
   useEffect(() => {
     const answers = JSON.parse(sessionStorage.getItem("quizAnswers") || "{}");
-    const industry = sessionStorage.getItem("industry") || "";
-    const jobType = sessionStorage.getItem("jobType") || "";
+    const ind = sessionStorage.getItem("industry") || "";
+    const job = sessionStorage.getItem("jobType") || "";
     const currentGakuchika = sessionStorage.getItem("currentGakuchika") || "";
+    setIndustry(ind);
+    setJobType(job);
 
     fetch("/api/suggest", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ answers, industry, jobType, currentGakuchika }),
+      body: JSON.stringify({ answers, industry: ind, jobType: job, currentGakuchika }),
     })
       .then((res) => res.json())
       .then((data) => {
@@ -36,16 +49,13 @@ export default function ResultPage() {
       .finally(() => setLoading(false));
   }, []);
 
-  const rankColors = ["#E94560", "#4A90D9", "#2ECC71"];
-  const rankLabels = ["1st", "2nd", "3rd"];
-
   if (loading) {
     return (
-      <main className="min-h-screen bg-white flex flex-col items-center justify-center px-4">
+      <main className="min-h-screen bg-[#F5F5F0] flex flex-col items-center justify-center px-4">
         <div className="text-center">
-          <div className="text-4xl mb-6 animate-spin">⚙️</div>
-          <p className="text-[#1A1A2E] font-bold text-lg">AIが分析中...</p>
-          <p className="text-gray-400 text-sm mt-2">あなたに最適なガクチカを考えています</p>
+          <div className="w-12 h-12 border-2 border-[#1A1A2E] border-t-transparent rounded-full animate-spin mx-auto mb-6" />
+          <p className="text-[#1A1A2E] font-medium text-lg">AIが分析中</p>
+          <p className="text-gray-400 text-sm mt-2">あなたの強みと志望を掛け合わせています...</p>
         </div>
       </main>
     );
@@ -53,63 +63,92 @@ export default function ResultPage() {
 
   if (error) {
     return (
-      <main className="min-h-screen bg-white flex flex-col items-center justify-center px-4">
+      <main className="min-h-screen bg-[#F5F5F0] flex flex-col items-center justify-center px-4">
         <p className="text-red-500 mb-4">{error}</p>
-        <Link href="/" className="text-[#E94560] underline">トップに戻る</Link>
+        <Link href="/" className="text-[#1A1A2E] underline text-sm">トップに戻る</Link>
       </main>
     );
   }
 
   return (
-    <main className="min-h-screen bg-white px-4 py-12">
-      <div className="max-w-2xl mx-auto">
-        <div className="text-center mb-10">
-          <h2 className="text-2xl font-bold text-[#1A1A2E] mb-2">あなたへのおすすめガクチカ</h2>
-          <p className="text-gray-400 text-sm">AIが得意・好き × 志望業界 × 職種を掛け合わせて提案しました</p>
-        </div>
+    <main className="min-h-screen bg-[#F5F5F0] pb-24">
+      {/* ヘッダー */}
+      <div className="bg-[#1A1A2E] px-5 pt-14 pb-8">
+        <p className="text-xs tracking-[0.2em] text-gray-500 mb-2 uppercase">Result</p>
+        <h1 className="text-2xl font-light text-white mb-1">あなたへの提案</h1>
+        <p className="text-gray-400 text-xs">{industry} · {jobType}</p>
+      </div>
 
-        <div className="flex flex-col gap-6">
-          {suggestions.map((s, i) => (
-            <div
-              key={s.rank}
-              className="border-2 rounded-2xl p-6"
-              style={{ borderColor: rankColors[i] }}
-            >
-              <div className="flex items-center gap-3 mb-4">
-                <span
-                  className="text-white text-sm font-bold px-3 py-1 rounded-full"
-                  style={{ backgroundColor: rankColors[i] }}
-                >
-                  {rankLabels[i]}
-                </span>
-                <h3 className="text-lg font-bold text-[#1A1A2E]">{s.title}</h3>
-              </div>
+      <div className="px-5 py-6 flex flex-col gap-4">
+        {suggestions.map((s, i) => {
+          const cfg = RANK_CONFIG[i];
+          const isOpen = expanded === i;
+          return (
+            <div key={s.rank} className="bg-white overflow-hidden">
+              {/* カードヘッダー */}
+              <button
+                onClick={() => setExpanded(isOpen ? null : i)}
+                className="w-full text-left"
+              >
+                <div className="px-5 pt-5 pb-4">
+                  <div className="flex items-start gap-3">
+                    <span
+                      className="text-xs font-medium px-2.5 py-1 shrink-0 mt-0.5"
+                      style={{ backgroundColor: cfg.bg, color: cfg.text }}
+                    >
+                      {cfg.label}
+                    </span>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-base font-medium text-gray-800 leading-snug">{s.title}</p>
+                      <p className="text-xs text-gray-400 mt-1">{s.tagline}</p>
+                    </div>
+                    <svg
+                      width="16" height="16" viewBox="0 0 24 24" fill="none"
+                      className={`shrink-0 text-gray-300 transition-transform mt-1 ${isOpen ? "rotate-90" : ""}`}
+                    >
+                      <path d="M9 18l6-6-6-6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                    </svg>
+                  </div>
+                </div>
+              </button>
 
-              <div className="mb-3">
-                <p className="text-xs font-bold text-gray-400 mb-1">なぜこれが刺さるか</p>
-                <p className="text-sm text-gray-700 leading-relaxed">{s.reason}</p>
-              </div>
-
-              <div className="mb-3">
-                <p className="text-xs font-bold text-gray-400 mb-1">今すぐできる始め方</p>
-                <p className="text-sm text-gray-700 leading-relaxed">{s.howToStart}</p>
-              </div>
-
-              <div className="mt-3 inline-block bg-gray-100 text-gray-500 text-xs px-3 py-1 rounded-full">
-                推奨期間：{s.period}
-              </div>
+              {/* 展開コンテンツ */}
+              {isOpen && (
+                <div className="border-t border-gray-50 px-5 pb-6 pt-4 flex flex-col gap-5">
+                  <div>
+                    <p className="text-[10px] tracking-widest text-gray-400 uppercase mb-2">なぜあなたに刺さるか</p>
+                    <p className="text-sm text-gray-700 leading-relaxed">{s.reason}</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] tracking-widest text-gray-400 uppercase mb-2">今すぐできる第一歩</p>
+                    <p className="text-sm text-gray-700 leading-relaxed">{s.howToStart}</p>
+                  </div>
+                  <div className="bg-[#F5F5F0] px-4 py-4">
+                    <p className="text-[10px] tracking-widest text-gray-400 uppercase mb-2">面接フレーム（STAR）</p>
+                    <p className="text-sm text-gray-600 leading-relaxed">{s.script}</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+                      <circle cx="12" cy="12" r="9" stroke="#aaa" strokeWidth="1.5" />
+                      <path d="M12 7v5l3 3" stroke="#aaa" strokeWidth="1.5" strokeLinecap="round" />
+                    </svg>
+                    <span className="text-xs text-gray-400">推奨期間：{s.period}</span>
+                  </div>
+                </div>
+              )}
             </div>
-          ))}
-        </div>
+          );
+        })}
+      </div>
 
-        <div className="mt-10 text-center">
-          <Link
-            href="/"
-            className="text-[#E94560] text-sm underline"
-          >
-            もう一度診断する
-          </Link>
-        </div>
+      {/* 再診断 */}
+      <div className="px-5 mt-2">
+        <Link
+          href="/start"
+          className="block w-full text-center py-4 border border-gray-200 text-sm text-gray-500 bg-white hover:bg-gray-50 transition-colors"
+        >
+          もう一度診断する
+        </Link>
       </div>
     </main>
   );
