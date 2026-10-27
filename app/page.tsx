@@ -50,18 +50,23 @@ export default function Home() {
               >
                 {/* 扉の外側（閉じた状態） */}
                 <div
-                  className="absolute inset-0 flex flex-col items-center justify-center border-2 border-gray-600 bg-[#0F3460] transition-all duration-700"
+                  className="absolute inset-0 border-4 border-[#2a3f6f] bg-[#0d2a52] transition-all duration-700"
                   style={{
                     transformOrigin: "left center",
-                    transform: isOpen ? "rotateY(-75deg)" : "rotateY(0deg)",
+                    transform: isOpen ? "rotateY(-80deg)" : "rotateY(0deg)",
                     backfaceVisibility: "hidden",
+                    boxShadow: "inset -4px 0 8px rgba(0,0,0,0.4), inset 4px 0 8px rgba(255,255,255,0.05)",
                   }}
                 >
-                  <span className="text-[#E94560] text-xs font-bold mb-2 tracking-widest">STEP {i + 1}</span>
-                  <span className="text-3xl mb-3">{door.icon}</span>
-                  <p className="text-white text-sm font-bold mb-1">{door.title}</p>
-                  <p className="text-gray-500 text-xs">{door.sub}</p>
-                  <span className="text-gray-600 text-xs mt-4">クリックして開く</span>
+                  {/* ドアパネル装飾 */}
+                  <div className="absolute inset-3 border border-[#1a3a6a] rounded-sm" />
+                  <div className="absolute inset-6 border border-[#1a3a6a] rounded-sm" />
+                  {/* ナンバープレート */}
+                  <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-[#1a3a6a] border border-[#2a4a7a] px-3 py-1">
+                    <span className="text-gray-400 text-xs tracking-widest">{i + 1}</span>
+                  </div>
+                  {/* ドアノブ */}
+                  <div className="absolute right-5 top-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-[#b8860b] shadow-md" />
                 </div>
 
                 {/* 扉の内側（開いた状態） */}
