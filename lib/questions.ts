@@ -117,6 +117,61 @@ export const questions12: Question[] = [
       { label: "社会・文化・クリエイティブ", value: "interest_society" },
     ],
   },
+  {
+    id: 11,
+    category: "プレッシャー耐性",
+    text: "プレッシャーのかかる場面で、あなたは？",
+    options: [
+      { label: "燃えて力を発揮する", value: "pressure_thrive" },
+      { label: "冷静に淡々と対処する", value: "pressure_calm" },
+      { label: "準備を重ねて不安を消す", value: "pressure_prepare" },
+      { label: "周りに相談して乗り切る", value: "pressure_rely" },
+    ],
+  },
+  {
+    id: 12,
+    category: "対人関係",
+    text: "初対面の人と関わるのは？",
+    options: [
+      { label: "得意。すぐ打ち解けられる", value: "social_easy" },
+      { label: "少人数なら得意", value: "social_small" },
+      { label: "時間をかけて深く仲良くなる", value: "social_deep" },
+      { label: "やや苦手だが必要なら頑張る", value: "social_effort" },
+    ],
+  },
+  {
+    id: 13,
+    category: "興味の持ち方",
+    text: "物事への興味の持ち方は？",
+    options: [
+      { label: "一つのことを深く掘り下げる", value: "interest_deep" },
+      { label: "幅広く色々なことに手を出す", value: "interest_wide" },
+      { label: "役に立ちそうなものを選んで学ぶ", value: "interest_useful" },
+      { label: "流行や新しいものに敏感", value: "interest_trend" },
+    ],
+  },
+  {
+    id: 14,
+    category: "理想の環境",
+    text: "どんな環境で力を発揮しやすい？",
+    options: [
+      { label: "裁量が大きく自由に動ける", value: "env_autonomy" },
+      { label: "仲間と協力し合える", value: "env_team" },
+      { label: "明確な目標と評価がある", value: "env_goal" },
+      { label: "安定して腰を据えられる", value: "env_stable" },
+    ],
+  },
+  {
+    id: 15,
+    category: "こだわり",
+    text: "成果を出すうえで一番大事にするのは？",
+    options: [
+      { label: "スピード・行動量", value: "value_speed" },
+      { label: "質・完成度", value: "value_quality" },
+      { label: "独自性・新しさ", value: "value_unique" },
+      { label: "確実性・ミスの無さ", value: "value_reliable" },
+    ],
+  },
 ];
 
 // ===== 3年生向け：就活直前。今ある経験・使える時間・すぐ動ける方向を聞く =====
@@ -205,6 +260,50 @@ export const questions3: Question[] = [
       { label: "継続力・粘り強さ", value: "appeal_persist" },
       { label: "課題解決力", value: "appeal_solve" },
       { label: "協調性・巻き込み力", value: "appeal_team" },
+    ],
+  },
+  {
+    id: 9,
+    category: "大変だった経験",
+    text: "これまでで一番大変だったのはどんな場面？",
+    options: [
+      { label: "人間関係・意見の対立", value: "hard_people" },
+      { label: "目標達成へのプレッシャー", value: "hard_goal" },
+      { label: "慣れないことへの挑戦", value: "hard_new" },
+      { label: "地道な作業の継続", value: "hard_routine" },
+    ],
+  },
+  {
+    id: 10,
+    category: "巻き込み経験",
+    text: "周囲を巻き込んで何かをした経験は？",
+    options: [
+      { label: "自分が中心になって進めた", value: "involve_lead" },
+      { label: "数人と協力して進めた", value: "involve_small" },
+      { label: "サポート役として支えた", value: "involve_support" },
+      { label: "あまり無い", value: "involve_none" },
+    ],
+  },
+  {
+    id: 11,
+    category: "継続の経験",
+    text: "一つのことを長く続けた経験は？",
+    options: [
+      { label: "3年以上続けたものがある", value: "cont_long" },
+      { label: "1〜2年続けたものがある", value: "cont_mid" },
+      { label: "数ヶ月単位ならある", value: "cont_short" },
+      { label: "あまり続かない方", value: "cont_none" },
+    ],
+  },
+  {
+    id: 12,
+    category: "アピールの軸",
+    text: "すぐ語れそうなエピソードのジャンルは？",
+    options: [
+      { label: "人間関係・チーム", value: "ep_team" },
+      { label: "課題解決・工夫", value: "ep_solve" },
+      { label: "継続・努力", value: "ep_effort" },
+      { label: "挑戦・新しいこと", value: "ep_challenge" },
     ],
   },
 ];
