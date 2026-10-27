@@ -61,12 +61,17 @@ export default function Home() {
                   {/* ドアパネル装飾 */}
                   <div className="absolute inset-3 border border-[#1a3a6a] rounded-sm" />
                   <div className="absolute inset-6 border border-[#1a3a6a] rounded-sm" />
-                  {/* ナンバープレート */}
-                  <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-[#1a3a6a] border border-[#2a4a7a] px-3 py-1">
-                    <span className="text-gray-400 text-xs tracking-widest">{i + 1}</span>
+                  {/* 上部ラベル */}
+                  <div className="absolute top-5 left-1/2 -translate-x-1/2 w-4/5 text-center">
+                    <span className="text-[#E94560] text-xs font-bold tracking-widest">STEP {i + 1}</span>
+                  </div>
+                  {/* 中央の看板 */}
+                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4/5 text-center">
+                    <div className="text-2xl mb-2">{door.icon}</div>
+                    <p className="text-white text-xs font-bold leading-tight">{door.title}</p>
                   </div>
                   {/* ドアノブ */}
-                  <div className="absolute right-5 top-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-[#b8860b] shadow-md" />
+                  <div className="absolute right-4 top-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-[#b8860b] shadow-md" />
                 </div>
 
                 {/* 扉の内側（開いた状態） */}
