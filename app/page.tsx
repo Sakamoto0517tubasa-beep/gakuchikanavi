@@ -84,8 +84,8 @@ export default function Home() {
               <div key={s.num} className="flex items-start gap-3">
                 <span className="w-6 h-6 shrink-0 rounded-full bg-[#0A3059] text-white text-xs flex items-center justify-center">{s.num}</span>
                 <div>
-                  <p className="text-sm text-gray-800">{s.title}</p>
-                  <p className="text-xs text-gray-500 mt-0.5">{s.desc}</p>
+                  <p className="text-sm text-gray-900 font-medium">{s.title}</p>
+                  <p className="text-[13px] text-gray-600 mt-0.5">{s.desc}</p>
                 </div>
               </div>
             ))}
@@ -126,12 +126,12 @@ export default function Home() {
           {faqs.map((f, i) => (
             <div key={i} className="px-4 py-3.5">
               <div className="flex gap-2">
-                <span className="text-[#0096DF] text-sm shrink-0">Q.</span>
-                <p className="text-[13px] text-gray-800">{f.q}</p>
+                <span className="text-[#0096DF] text-sm shrink-0 font-medium">Q.</span>
+                <p className="text-[14px] text-gray-900 font-medium">{f.q}</p>
               </div>
               <div className="flex gap-2 mt-1.5">
                 <span className="text-gray-400 text-sm shrink-0">A.</span>
-                <p className="text-[13px] text-gray-500 leading-relaxed">{f.a}</p>
+                <p className="text-[14px] text-gray-600 leading-relaxed">{f.a}</p>
               </div>
             </div>
           ))}
