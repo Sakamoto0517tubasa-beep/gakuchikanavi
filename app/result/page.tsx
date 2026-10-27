@@ -32,6 +32,7 @@ export default function ResultPage() {
     const answers = JSON.parse(sessionStorage.getItem("quizAnswers") || "{}");
     const ind = sessionStorage.getItem("industry") || "";
     const job = sessionStorage.getItem("jobType") || "";
+    const grade = sessionStorage.getItem("grade") || "";
     const currentGakuchika = sessionStorage.getItem("currentGakuchika") || "";
     setIndustry(ind);
     setJobType(job);
@@ -39,7 +40,7 @@ export default function ResultPage() {
     fetch("/api/suggest", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ answers, industry: ind, jobType: job, currentGakuchika }),
+      body: JSON.stringify({ answers, industry: ind, jobType: job, grade, currentGakuchika }),
     })
       .then((res) => res.json())
       .then((data) => {

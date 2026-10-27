@@ -64,7 +64,21 @@ const QUESTION_LABELS: Record<number, string> = {
 
 export async function POST(req: NextRequest) {
   try {
-    const { answers, industry, jobType, currentGakuchika } = await req.json();
+    const { answers, industry, jobType, grade, currentGakuchika } = await req.json();
+
+    const isThirdYear = grade === "3年生";
+    const gradeInstruction = isThirdYear
+      ? `【学年：3年生（就活直前・時間が少ない）】
+この学生は今から就活本番です。じっくり育てる時間はありません。必ず以下を守ってください：
+- 3案とも「今日〜今週に始めて、1〜3ヶ月で面接で語れるレベルになる」短期集中の活動にする。
+- 推奨期間(period)は原則「1ヶ月〜3ヶ月」。半年以上かかる案は出さない。
+- 今あるアルバイト・サークル・ゼミなど「既にやっている経験」を“すぐに”深掘り・言語化して武器にする案を優先する。
+- 「短期インターン・1dayではなく実績が残せるもの」「今ある活動に一工夫加えて成果を出す」など、スピード重視で。`
+      : `【学年：1・2年生（時間に余裕あり）】
+この学生はまだ時間があります。腰を据えて取り組める活動を提案してください：
+- 半年〜2年かけてじっくり育て、深いエピソードと大きな成果になる活動を含める。
+- 新しく始める挑戦（長期インターン、留学、学生団体の立ち上げ、継続的な個人活動など）も積極的に提案してよい。
+- 推奨期間(period)は「半年〜2年」を目安に、活動に応じて設定する。`;
 
     const answerSummary = Object.entries(answers as Record<string, string>)
       .map(([id, val]) => `・${QUESTION_LABELS[Number(id)]}: ${ANSWER_LABELS[val] ?? val}`)
@@ -96,6 +110,8 @@ export async function POST(req: NextRequest) {
 【良い例 / 悪い例】
 × 悪い例：「サークルでリーダーをしてコミュ力を発揮した」（抽象的で誰でも言える）
 ○ 良い例：「30人のテニスサークルで参加率が5割を切っていた練習に、LINEでの前日リマインドと初心者向け練習日の新設を提案・実行し、半年で参加率を8割に改善した」（具体的な課題・行動・数字）
+
+${gradeInstruction}
 
 【学生プロフィール】
 志望業界: ${industry}

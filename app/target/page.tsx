@@ -6,12 +6,14 @@ import { industries, jobTypes } from "@/lib/questions";
 
 export default function TargetPage() {
   const router = useRouter();
+  const [grade, setGrade] = useState("");
   const [industry, setIndustry] = useState("");
   const [jobType, setJobType] = useState("");
   const [currentGakuchika, setCurrentGakuchika] = useState("");
 
   function handleSubmit() {
-    if (!industry || !jobType) return;
+    if (!grade || !industry || !jobType) return;
+    sessionStorage.setItem("grade", grade);
     sessionStorage.setItem("industry", industry);
     sessionStorage.setItem("jobType", jobType);
     sessionStorage.setItem("currentGakuchika", currentGakuchika);
@@ -23,6 +25,30 @@ export default function TargetPage() {
       <div className="max-w-xl w-full">
         <h2 className="text-2xl font-bold text-[#1A1A2E] mb-2">志望を教えてください</h2>
         <p className="text-gray-400 text-sm mb-8">AIがあなたに合ったガクチカを提案します</p>
+
+        {/* 学年 */}
+        <div className="mb-6">
+          <label className="block text-sm font-bold text-[#1A1A2E] mb-3">学年</label>
+          <div className="grid grid-cols-2 gap-2">
+            {[
+              { value: "1・2年生", sub: "じっくり育てる" },
+              { value: "3年生", sub: "今から間に合う" },
+            ].map((g) => (
+              <button
+                key={g.value}
+                onClick={() => setGrade(g.value)}
+                className={`px-4 py-3 rounded border text-sm font-medium transition-all ${
+                  grade === g.value
+                    ? "border-[#0096DF] bg-[#EAF4FB] text-[#0A3059]"
+                    : "border-gray-200 text-gray-600 hover:border-gray-300"
+                }`}
+              >
+                {g.value}
+                <span className="block text-[11px] text-gray-400 font-normal mt-0.5">{g.sub}</span>
+              </button>
+            ))}
+          </div>
+        </div>
 
         {/* 業界 */}
         <div className="mb-6">
@@ -80,7 +106,7 @@ export default function TargetPage() {
 
         <button
           onClick={handleSubmit}
-          disabled={!industry || !jobType}
+          disabled={!grade || !industry || !jobType}
           className="w-full bg-[#F08300] text-white text-[15px] font-bold py-4 rounded disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[#d97600] transition-colors"
         >
           AIに提案してもらう →
