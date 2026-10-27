@@ -21,6 +21,7 @@ const RANK_CONFIG = [
 
 export default function ResultPage() {
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
+  const [strengthProfile, setStrengthProfile] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [expanded, setExpanded] = useState<number | null>(0);
@@ -44,6 +45,7 @@ export default function ResultPage() {
       .then((data) => {
         if (data.error) throw new Error(data.error);
         setSuggestions(data.suggestions);
+        setStrengthProfile(data.strengthProfile || "");
       })
       .catch(() => setError("提案の生成に失敗しました。もう一度お試しください。"))
       .finally(() => setLoading(false));
@@ -84,6 +86,12 @@ export default function ResultPage() {
       </div>
 
       <div className="max-w-2xl mx-auto px-4 py-6 flex flex-col gap-4">
+        {strengthProfile && (
+          <div className="bg-white border border-gray-200 rounded-md px-5 py-4">
+            <p className="text-[11px] font-medium text-[#0096DF] mb-1">あなたの強みタイプ</p>
+            <p className="text-[15px] font-medium text-gray-900">{strengthProfile}</p>
+          </div>
+        )}
         {suggestions.map((s, i) => {
           const cfg = RANK_CONFIG[i];
           const isOpen = expanded === i;
