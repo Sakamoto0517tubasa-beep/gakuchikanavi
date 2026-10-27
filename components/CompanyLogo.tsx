@@ -30,9 +30,10 @@ export default function CompanyLogo({
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={logoUrl(domain)}
-          alt={name}
-          width={size - 12}
-          height={size - 12}
+          alt=""
+          loading="lazy"
+          width={size - 14}
+          height={size - 14}
           onError={() => setFailed(true)}
           className="object-contain"
         />
