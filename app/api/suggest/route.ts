@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import Groq from "groq-sdk";
 
-const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+// 環境変数にBOMや不可視文字が混入しても動くよう、ASCII印字可能文字だけに浄化する
+const rawKey = process.env.GROQ_API_KEY ?? "";
+const cleanKey = rawKey.replace(/[^\x21-\x7E]/g, "");
+const groq = new Groq({ apiKey: cleanKey });
 
 const ANSWER_LABELS: Record<string, string> = {
   gather_people: "すぐに人を集めて話し合う",
