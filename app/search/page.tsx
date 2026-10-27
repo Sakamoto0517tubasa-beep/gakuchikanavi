@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { companies, categories } from "@/lib/companies";
+import CompanyLogo from "@/components/CompanyLogo";
 
 function mynaviUrl(name: string) {
   return `https://job.mynavi.jp/28/pc/corpinfo/searchCorpListByGenCond/index/?cond=FW:${encodeURIComponent(name)}/func=PCTopQuickSearch/FWTGT:1`;
@@ -84,11 +85,15 @@ export default function SearchPage() {
             <button
               key={company.name}
               onClick={() => setSelected(company.name)}
-              className="w-full px-4 py-4 text-left flex items-center justify-between hover:bg-gray-50 transition-colors"
+              className="w-full px-3.5 py-3 text-left flex items-center gap-3 hover:bg-gray-50 transition-colors"
             >
-              <div>
-                <p className="text-sm font-bold text-gray-800">{company.name}</p>
-                <p className="text-xs text-gray-500 mt-0.5">{company.industry}／{company.note}</p>
+              <CompanyLogo name={company.name} category={company.category} size={44} />
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-bold text-gray-800 truncate">{company.name}</p>
+                <div className="flex items-center gap-1.5 mt-1">
+                  <span className="text-[10px] text-gray-500 border border-gray-300 rounded-sm px-1 py-px shrink-0 whitespace-nowrap">{company.category}</span>
+                  <span className="text-[11px] text-gray-500 truncate">{company.note}</span>
+                </div>
               </div>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" className="shrink-0 text-gray-300">
                 <path d="M9 18l6-6-6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />

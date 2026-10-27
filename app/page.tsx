@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { companies, categories } from "@/lib/companies";
+import CompanyLogo from "@/components/CompanyLogo";
 import { useState } from "react";
 
 const tools = [
@@ -15,12 +16,6 @@ const tools = [
   { label: "マイページ", href: "/mypage", color: "#7C5CBF",
     icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg> },
 ];
-
-const CAT_COLORS: Record<string, string> = {
-  "メーカー": "#C0652B", "IT": "#0068B7", "商社": "#8A6D3B", "金融": "#2E7D32",
-  "コンサル": "#5E35B1", "広告・メディア": "#C2185B", "流通・小売": "#00838F",
-  "インフラ": "#455A64", "航空・観光": "#0277BD", "その他": "#607D8B",
-};
 
 export default function Home() {
   const router = useRouter();
@@ -105,9 +100,7 @@ export default function Home() {
         <div className="bg-white rounded-lg border border-gray-200 divide-y divide-gray-100 mt-1">
           {list.map((c) => (
             <Link key={c.name} href="/search" className="flex items-center gap-3 px-3.5 py-3 hover:bg-gray-50 transition-colors">
-              <span className="w-11 h-11 rounded shrink-0 flex items-center justify-center text-white text-lg font-bold" style={{ backgroundColor: CAT_COLORS[c.category] ?? "#607D8B" }}>
-                {c.name.charAt(0)}
-              </span>
+              <CompanyLogo name={c.name} category={c.category} size={44} />
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-bold text-gray-800 truncate">{c.name}</p>
                 <div className="flex items-center gap-1.5 mt-1">
