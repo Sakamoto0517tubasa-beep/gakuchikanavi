@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
-import { Noto_Sans_JP } from "next/font/google";
+import { BIZ_UDPGothic } from "next/font/google";
 import "./globals.css";
 import BottomNav from "@/components/BottomNav";
 
-const notoSansJP = Noto_Sans_JP({
+const bizUDP = BIZ_UDPGothic({
   subsets: ["latin"],
-  weight: ["400", "500", "700"],
+  weight: ["400", "700"],
   display: "swap",
-  variable: "--font-noto-sans-jp",
+  variable: "--font-biz-udp",
 });
 
 export const metadata: Metadata = {
@@ -17,8 +17,8 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="ja" className={notoSansJP.variable}>
-      <body style={{ fontFamily: "var(--font-noto-sans-jp), sans-serif" }}>
+    <html lang="ja" className={bizUDP.variable}>
+      <body style={{ fontFamily: "var(--font-biz-udp), 'Hiragino Kaku Gothic ProN', 'Yu Gothic', Meiryo, sans-serif" }}>
         <div className="pb-16">{children}</div>
         <BottomNav />
       </body>
