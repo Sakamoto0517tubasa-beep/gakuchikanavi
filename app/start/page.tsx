@@ -61,7 +61,6 @@ export default function StartPage() {
   return (
     <main
       className={`min-h-screen bg-[#EEF1F5] flex flex-col items-center justify-center px-6 transition-opacity duration-500 ${leaving ? "opacity-0" : "opacity-100"}`}
-      style={{ fontFamily: "'Helvetica Neue', Arial, 'Hiragino Sans', 'Yu Gothic', sans-serif" }}
     >
       <div className="text-center mb-12">
         <h2 className="text-xl font-bold text-gray-800 mb-2">3つの扉を開いてください</h2>
