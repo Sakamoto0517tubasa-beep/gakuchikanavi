@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 const steps = [
-  { num: "1", title: "強みを診断", desc: "10問の質問に答えて行動特性を分析" },
+  { num: "1", title: "強みを診断", desc: "質問に答えてあなたの行動特性を分析" },
   { num: "2", title: "志望を入力", desc: "気になる業界と職種を選ぶだけ" },
   { num: "3", title: "AIが提案", desc: "理由・始め方・面接フレーム付きで3つ提案" },
 ];
@@ -19,7 +19,7 @@ const columns = [
 const faqs = [
   { q: "診断は無料ですか？", a: "はい、登録不要で何度でも無料で利用できます。" },
   { q: "ガクチカがまだ無くても使えますか？", a: "大丈夫です。今から始められる活動を提案します。" },
-  { q: "診断にはどれくらい時間がかかりますか？", a: "10問・約3分で完了します。" },
+  { q: "診断にはどれくらい時間がかかりますか？", a: "学年に合わせた質問に約3分で答えられます。" },
 ];
 
 export default function Home() {

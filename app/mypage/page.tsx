@@ -15,6 +15,7 @@ export default function MyPage() {
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [postedTitles, setPostedTitles] = useState<string[]>([]);
   const [interests, setInterests] = useState<ScoutInterest[]>([]);
+  const [gakuFilter, setGakuFilter] = useState("すべて");
 
   useEffect(() => {
     setDiagnosis(getDiagnosis());
@@ -22,6 +23,9 @@ export default function MyPage() {
     setPostedTitles(getPosts().map((p) => p.title));
     setInterests(getScoutInterests());
   }, []);
+
+  const gakuIndustries = Array.from(new Set(gakuchikas.map((g) => g.industry).filter((x): x is string => !!x)));
+  const filteredGaku = gakuFilter === "すべて" ? gakuchikas : gakuchikas.filter((g) => g.industry === gakuFilter);
 
   function post(g: SavedGakuchika) {
     addPost({
@@ -118,6 +122,16 @@ export default function MyPage() {
           <h2 className="text-[13px] font-medium text-[#0A3059]">保存したガクチカ</h2>
           {gakuchikas.length > 0 && <span className="text-[11px] text-gray-400">{gakuchikas.length}件</span>}
         </div>
+        {gakuIndustries.length > 1 && (
+          <div className="flex gap-2 overflow-x-auto pb-2 mb-1 scrollbar-hide">
+            {["すべて", ...gakuIndustries].map((f) => (
+              <button key={f} onClick={() => setGakuFilter(f)}
+                className={`shrink-0 text-xs px-3 py-1 rounded-full border transition-colors ${gakuFilter === f ? "bg-[#0A3059] text-white border-[#0A3059]" : "bg-white text-gray-600 border-gray-300"}`}>
+                {f}
+              </button>
+            ))}
+          </div>
+        )}
 
         {gakuchikas.length === 0 ? (
           <div className="bg-white rounded border border-gray-200 px-4 py-6 text-center mb-5">
@@ -125,7 +139,7 @@ export default function MyPage() {
           </div>
         ) : (
           <div className="flex flex-col gap-2.5 mb-5">
-            {gakuchikas.map((g) => {
+            {filteredGaku.map((g) => {
               const open = openId === g.id;
               return (
                 <div key={g.id} className="bg-white rounded border border-gray-200 overflow-hidden">

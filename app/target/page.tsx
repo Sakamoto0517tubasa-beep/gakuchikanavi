@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { industries, jobTypes } from "@/lib/questions";
 
@@ -9,6 +9,10 @@ export default function TargetPage() {
   const [industry, setIndustry] = useState("");
   const [jobType, setJobType] = useState("");
   const [currentGakuchika, setCurrentGakuchika] = useState("");
+
+  useEffect(() => {
+    if (!sessionStorage.getItem("quizAnswers")) router.replace("/start");
+  }, [router]);
 
   function handleSubmit() {
     if (!industry || !jobType) return;
@@ -85,6 +89,9 @@ export default function TargetPage() {
         >
           AIに提案してもらう →
         </button>
+        {(!industry || !jobType) && (
+          <p className="text-[12px] text-gray-400 text-center mt-2.5">志望業界と志望職種を選択してください</p>
+        )}
       </div>
     </main>
   );

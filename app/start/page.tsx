@@ -7,7 +7,7 @@ const doors = [
   {
     step: "01",
     title: "強みを診断",
-    sub: "得意・好きを10問で分析",
+    sub: "得意・好きを質問で分析",
     icon: (
       <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
         <circle cx="16" cy="10" r="6" stroke="currentColor" strokeWidth="1.5" />
