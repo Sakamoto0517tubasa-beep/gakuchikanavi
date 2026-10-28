@@ -35,6 +35,8 @@ export default function BuildPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [copied, setCopied] = useState(false);
+  const [refineReq, setRefineReq] = useState("");
+  const [refining, setRefining] = useState(false);
 
   useEffect(() => {
     const raw = sessionStorage.getItem("selectedGakuchika");
@@ -80,6 +82,29 @@ export default function BuildPage() {
       })
       .catch(() => setError("生成に失敗しました。もう一度お試しください。"))
       .finally(() => setLoading(false));
+  }
+
+  function refine(req: string) {
+    if (!result || !req.trim() || refining) return;
+    setRefining(true);
+    fetch("/api/refine", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        fullText: result.fullText,
+        request: req,
+        industry: sessionStorage.getItem("industry") || "",
+        jobType: sessionStorage.getItem("jobType") || "",
+      }),
+    })
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.error || !d.fullText) throw new Error();
+        setResult({ ...result, fullText: d.fullText });
+        setRefineReq("");
+      })
+      .catch(() => setError("書き直しに失敗しました。もう一度お試しください。"))
+      .finally(() => setRefining(false));
   }
 
   function copyText() {
@@ -164,6 +189,32 @@ export default function BuildPage() {
                 </button>
               </div>
               <p className="px-4 py-4 text-sm text-gray-800 leading-relaxed whitespace-pre-wrap">{result.fullText}</p>
+              {/* AIに相談（深掘り） */}
+              <div className="border-t border-gray-100 px-4 py-3.5 bg-[#F7F9FB]">
+                <p className="text-[12px] font-medium text-[#0A3059] mb-2">AIに相談して書き直す</p>
+                <div className="flex flex-wrap gap-1.5 mb-2.5">
+                  {["もっと具体的に", "数字を強調して", "短く300字に", "結果をもっと詳しく", "別の言い回しで"].map((chip) => (
+                    <button key={chip} onClick={() => refine(chip)} disabled={refining}
+                      className="text-[12px] text-[#0096DF] border border-[#9fd3ef] bg-white rounded-full px-3 py-1 active:scale-95 transition-transform disabled:opacity-50">
+                      {chip}
+                    </button>
+                  ))}
+                </div>
+                <div className="flex gap-2">
+                  <input
+                    value={refineReq}
+                    onChange={(e) => setRefineReq(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === "Enter") refine(refineReq); }}
+                    placeholder="例：リーダーシップを前面に出して"
+                    className="flex-1 min-w-0 border border-gray-300 rounded px-3 py-2 text-sm text-gray-700 focus:outline-none focus:border-[#0096DF]"
+                  />
+                  <button onClick={() => refine(refineReq)} disabled={refining || !refineReq.trim()}
+                    className="shrink-0 bg-[#0096DF] text-white text-sm font-medium px-4 rounded active:scale-95 transition-transform disabled:bg-gray-300">
+                    {refining ? "…" : "相談"}
+                  </button>
+                </div>
+                {refining && <p className="text-[12px] text-gray-400 mt-2">AIが書き直しています...</p>}
+              </div>
             </div>
 
             {/* 構成（STAR） */}
