@@ -1,18 +1,39 @@
-import Link from "next/link";
+"use client";
 
-const menu = [
-  { label: "診断結果を見る", desc: "AIが提案したガクチカを確認", href: "/result",
-    icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0A3059" strokeWidth="1.8"><path d="M9 11l3 3 8-8M20 12v6a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h9" strokeLinecap="round" strokeLinejoin="round"/></svg> },
-  { label: "ガクチカを再診断する", desc: "もう一度10問に答える", href: "/start",
-    icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0A3059" strokeWidth="1.8"><path d="M21 4v6h-6M3 20v-6h6" strokeLinecap="round" strokeLinejoin="round"/><path d="M19 10a7 7 0 00-13-2M5 14a7 7 0 0013 2" strokeLinecap="round" strokeLinejoin="round"/></svg> },
-  { label: "志望設定を変更する", desc: "業界・職種を選び直す", href: "/target",
-    icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0A3059" strokeWidth="1.8"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2 2M16.4 16.4l2 2M18.4 5.6l-2 2M7.6 16.4l-2 2" strokeLinecap="round"/></svg> },
-];
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import {
+  getDiagnosis, getGakuchikaList, deleteGakuchika, formatDate,
+  type SavedDiagnosis, type SavedGakuchika,
+} from "@/lib/storage";
 
 export default function MyPage() {
+  const [diagnosis, setDiagnosis] = useState<SavedDiagnosis | null>(null);
+  const [gakuchikas, setGakuchikas] = useState<SavedGakuchika[]>([]);
+  const [openId, setOpenId] = useState<string | null>(null);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+
+  useEffect(() => {
+    setDiagnosis(getDiagnosis());
+    setGakuchikas(getGakuchikaList());
+  }, []);
+
+  const done = !!diagnosis;
+
+  function remove(id: string) {
+    deleteGakuchika(id);
+    setGakuchikas(getGakuchikaList());
+  }
+
+  function copy(g: SavedGakuchika) {
+    navigator.clipboard?.writeText(g.fullText).then(() => {
+      setCopiedId(g.id);
+      setTimeout(() => setCopiedId((c) => (c === g.id ? null : c)), 1800);
+    });
+  }
+
   return (
     <main className="min-h-screen bg-[#F2F3F5]">
-      {/* トップバー */}
       <header className="bg-white border-b-2 border-[#0096DF]">
         <div className="max-w-2xl mx-auto px-4 h-12 flex items-center">
           <span className="text-[18px] font-medium text-[#0A3059] tracking-tight">ガクチカナビ</span>
@@ -23,54 +44,116 @@ export default function MyPage() {
       <div className="bg-white border-b border-gray-200">
         <div className="max-w-2xl mx-auto px-4 py-4 flex items-center gap-3.5">
           <div className="w-14 h-14 rounded-full bg-[#EAF4FB] flex items-center justify-center shrink-0">
-            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#0A3059" strokeWidth="1.6"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-3.9 3.1-7 7-7s7 3.1 7 7" strokeLinecap="round"/></svg>
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#0A3059" strokeWidth="1.6"><circle cx="12" cy="8" r="3.5" /><path d="M5 20c0-3.9 3.1-7 7-7s7 3.1 7 7" strokeLinecap="round" /></svg>
           </div>
           <div>
             <p className="text-[16px] font-medium text-[#0A3059]">ゲストユーザー</p>
-            <span className="inline-block mt-1 text-[11px] font-medium text-[#F08300] border border-[#F08300] px-1.5 py-px rounded-sm">診断未完了</span>
+            {done ? (
+              <span className="inline-block mt-1 text-[11px] font-medium text-white bg-[#0096DF] px-1.5 py-px rounded-sm">診断完了</span>
+            ) : (
+              <span className="inline-block mt-1 text-[11px] font-medium text-[#F08300] border border-[#F08300] px-1.5 py-px rounded-sm">診断未完了</span>
+            )}
           </div>
         </div>
       </div>
 
-      {/* 診断ステータス */}
-      <div className="max-w-2xl mx-auto px-4 pt-4">
-        <div className="bg-white rounded border border-gray-200">
-          <div className="flex items-center gap-2 px-4 pt-3 pb-2 border-b border-gray-100">
-            <span className="w-1 h-4 bg-[#0096DF]" />
-            <h2 className="text-[13px] font-medium text-[#0A3059]">診断ステータス</h2>
-            <span className="ml-auto text-xs font-medium text-gray-500">0 / 10 問</span>
-          </div>
-          <div className="px-4 py-4">
-            <div className="h-2 bg-gray-100 rounded-full overflow-hidden mb-3">
-              <div className="h-full bg-[#0096DF] rounded-full" style={{ width: "0%" }} />
+      <div className="max-w-2xl mx-auto px-4 py-4">
+        {/* 診断ステータス */}
+        {done ? (
+          <div className="bg-white rounded border border-gray-200 mb-5">
+            <div className="flex items-center gap-2 px-4 pt-3 pb-2 border-b border-gray-100">
+              <span className="w-1 h-4 bg-[#0096DF]" />
+              <h2 className="text-[13px] font-medium text-[#0A3059]">あなたの診断結果</h2>
+              <span className="ml-auto text-[11px] text-gray-400">{formatDate(diagnosis!.date)}</span>
             </div>
-            <p className="text-[13px] text-gray-600 leading-relaxed mb-3.5">10問の診断に答えると、あなたの強みに合ったガクチカをAIが提案します。</p>
-            <Link href="/start" className="flex items-center justify-center gap-1.5 bg-[#F08300] text-white text-[15px] font-medium py-3 rounded hover:bg-[#d97600] transition-colors">
+            <div className="px-4 py-4">
+              <p className="text-[11px] font-medium text-[#0096DF] mb-0.5">強みタイプ</p>
+              <p className="text-[15px] font-medium text-gray-900 mb-3">{diagnosis!.strengthProfile}</p>
+              <p className="text-[12px] text-gray-400 mb-1">{diagnosis!.industry}／{diagnosis!.jobType} 志望</p>
+              <div className="flex flex-col gap-1.5 mt-2">
+                {diagnosis!.suggestions.map((s, i) => (
+                  <div key={i} className="flex items-center gap-2">
+                    <span className="text-[10px] text-white px-1.5 py-0.5 rounded-sm shrink-0" style={{ backgroundColor: i === 0 ? "#F08300" : "#0A3059" }}>{i + 1}</span>
+                    <span className="text-[13px] text-gray-700 truncate">{s.title}</span>
+                  </div>
+                ))}
+              </div>
+              <Link href="/result" className="mt-4 block w-full text-center bg-[#EAF4FB] border border-[#9fd3ef] text-[#0A3059] text-sm font-medium py-2.5 rounded active:scale-[0.99] transition-transform">
+                診断結果をくわしく見る
+              </Link>
+            </div>
+          </div>
+        ) : (
+          <div className="bg-white rounded border border-gray-200 px-4 py-5 mb-5 text-center">
+            <p className="text-[13px] text-gray-600 mb-4">まだ診断を受けていません。<br />3分であなたに合ったガクチカが分かります。</p>
+            <Link href="/start" className="inline-flex items-center gap-1.5 bg-[#F08300] text-white text-[15px] font-medium px-8 py-3 rounded active:scale-[0.99] hover:bg-[#d97600] transition-all">
               診断を始める（無料）
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="#fff" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"/></svg>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="#fff" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" /></svg>
             </Link>
           </div>
-        </div>
-      </div>
+        )}
 
-      {/* メニュー */}
-      <div className="max-w-2xl mx-auto px-4 pt-4 pb-8">
+        {/* 保存したガクチカ */}
         <div className="flex items-center gap-2 mb-2 px-1">
           <span className="w-1 h-4 bg-[#0096DF]" />
-          <h2 className="text-[13px] font-medium text-[#0A3059]">メニュー</h2>
+          <h2 className="text-[13px] font-medium text-[#0A3059]">保存したガクチカ</h2>
+          {gakuchikas.length > 0 && <span className="text-[11px] text-gray-400">{gakuchikas.length}件</span>}
         </div>
+
+        {gakuchikas.length === 0 ? (
+          <div className="bg-white rounded border border-gray-200 px-4 py-6 text-center mb-5">
+            <p className="text-[13px] text-gray-500">診断結果から「このガクチカを深める」で<br />完成させると、ここに保存されます。</p>
+          </div>
+        ) : (
+          <div className="flex flex-col gap-2.5 mb-5">
+            {gakuchikas.map((g) => {
+              const open = openId === g.id;
+              return (
+                <div key={g.id} className="bg-white rounded border border-gray-200 overflow-hidden">
+                  <button onClick={() => setOpenId(open ? null : g.id)} className="w-full text-left px-4 py-3.5 flex items-center gap-2 active:bg-gray-50 transition-colors">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-gray-800 truncate">{g.title}</p>
+                      <p className="text-[11px] text-gray-400 mt-0.5">{formatDate(g.date)}</p>
+                    </div>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className={`shrink-0 text-gray-300 transition-transform duration-300 ${open ? "rotate-90" : ""}`}><path d="M9 18l6-6-6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>
+                  </button>
+                  <div className={`grid transition-all duration-300 ease-out ${open ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}>
+                    <div className="overflow-hidden">
+                      <div className="border-t border-gray-100 px-4 py-4">
+                        <p className="text-sm text-gray-800 leading-relaxed whitespace-pre-wrap">{g.fullText}</p>
+                        <div className="flex flex-wrap gap-1.5 mt-3">
+                          {g.appealPoints?.map((p, i) => (
+                            <span key={i} className="text-[12px] text-[#0096DF] border border-[#9fd3ef] bg-[#EAF4FB] rounded-full px-2.5 py-0.5">{p}</span>
+                          ))}
+                        </div>
+                        <div className="flex items-center gap-3 mt-4">
+                          <button onClick={() => copy(g)} className="flex items-center gap-1.5 text-xs font-medium text-[#0096DF] border border-[#9fd3ef] bg-[#EAF4FB] rounded px-3 py-1.5 active:scale-95 transition-transform">
+                            {copiedId === g.id ? "コピーしました" : "本文をコピー"}
+                          </button>
+                          <button onClick={() => remove(g.id)} className="text-xs text-gray-400 hover:text-red-500 transition-colors ml-auto">削除</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {/* メニュー */}
         <div className="bg-white rounded border border-gray-200 divide-y divide-gray-100">
-          {menu.map((item) => (
-            <Link key={item.label} href={item.href} className="flex items-center gap-3.5 px-4 py-3.5 hover:bg-gray-50 transition-colors">
-              <span className="w-9 h-9 rounded-full bg-[#EAF4FB] flex items-center justify-center shrink-0">{item.icon}</span>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-gray-800">{item.label}</p>
-                <p className="text-xs text-gray-500 mt-0.5">{item.desc}</p>
-              </div>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="#c7cdd4"><path d="M9.29 6.71a1 1 0 000 1.41L13.17 12l-3.88 3.88a1 1 0 101.42 1.41l4.58-4.58a1 1 0 000-1.41L10.71 6.7a1 1 0 00-1.42.01z"/></svg>
+          {[
+            { label: "ガクチカを再診断する", href: "/start" },
+            { label: "志望設定を変更する", href: "/target" },
+          ].map((item) => (
+            <Link key={item.href} href={item.href} className="flex items-center justify-between px-4 py-3.5 active:bg-gray-50 transition-colors">
+              <span className="text-sm text-gray-800">{item.label}</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="#c7cdd4"><path d="M9.29 6.71a1 1 0 000 1.41L13.17 12l-3.88 3.88a1 1 0 101.42 1.41l4.58-4.58a1 1 0 000-1.41L10.71 6.7a1 1 0 00-1.42.01z" /></svg>
             </Link>
           ))}
         </div>
+
         <p className="text-[11px] text-gray-400 text-center mt-8">ガクチカナビ v1.0</p>
       </div>
     </main>

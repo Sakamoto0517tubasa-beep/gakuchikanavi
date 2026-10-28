@@ -3,17 +3,6 @@
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
-const tools = [
-  { label: "ガクチカ診断", href: "/start",
-    icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0A3059" strokeWidth="1.8"><path d="M9 11l3 3 8-8M20 12v6a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h9" strokeLinecap="round" strokeLinejoin="round"/></svg> },
-  { label: "企業検索", href: "/search",
-    icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0A3059" strokeWidth="1.8"><circle cx="11" cy="11" r="7"/><path d="M16.5 16.5L21 21" strokeLinecap="round"/></svg> },
-  { label: "スカウト", href: "/scout",
-    icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0A3059" strokeWidth="1.8"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6" strokeLinecap="round"/></svg> },
-  { label: "マイページ", href: "/mypage",
-    icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0A3059" strokeWidth="1.8"><circle cx="12" cy="8" r="4"/><path d="M5 20c0-3.9 3.1-7 7-7s7 3.1 7 7" strokeLinecap="round"/></svg> },
-];
-
 const steps = [
   { num: "1", title: "強みを診断", desc: "10問の質問に答えて行動特性を分析" },
   { num: "2", title: "志望を入力", desc: "気になる業界と職種を選ぶだけ" },
@@ -58,20 +47,8 @@ export default function Home() {
         </div>
       </div>
 
-      {/* ツール */}
-      <div className="max-w-2xl mx-auto px-4 pt-3">
-        <div className="bg-white rounded border border-gray-200 grid grid-cols-4 divide-x divide-gray-100">
-          {tools.map((t) => (
-            <Link key={t.label} href={t.href} className="flex flex-col items-center gap-1.5 py-3 hover:bg-gray-50 transition-colors">
-              <span className="w-9 h-9 rounded-full bg-[#EAF4FB] flex items-center justify-center">{t.icon}</span>
-              <span className="text-[10.5px] text-[#0A3059]">{t.label}</span>
-            </Link>
-          ))}
-        </div>
-      </div>
-
-      {/* 診断の流れ */}
-      <div className="max-w-2xl mx-auto px-4 pt-5">
+      {/* 診断について */}
+      <div className="max-w-2xl mx-auto px-4 pt-4">
         <h2 className="text-[14px] text-[#0A3059] mb-2.5 flex items-center gap-2">
           <span className="w-1 h-4 bg-[#0096DF]" />ガクチカ診断について
         </h2>

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { saveGakuchika } from "@/lib/storage";
 
 type Suggestion = {
   title: string;
@@ -62,6 +63,17 @@ export default function BuildPage() {
       .then((d) => {
         if (d.error) throw new Error(d.error);
         setResult(d);
+        if (gakuchika) {
+          saveGakuchika({
+            id: (typeof crypto !== "undefined" && crypto.randomUUID) ? crypto.randomUUID() : String(Date.now()),
+            date: new Date().toISOString(),
+            title: gakuchika.title,
+            fullText: d.fullText,
+            structure: d.structure,
+            appealPoints: d.appealPoints,
+            interviewQs: d.interviewQs,
+          });
+        }
         setTimeout(() => window.scrollTo({ top: 9999, behavior: "smooth" }), 100);
       })
       .catch(() => setError("生成に失敗しました。もう一度お試しください。"))

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { saveDiagnosis, getDiagnosis } from "@/lib/storage";
 
 type Suggestion = {
   rank: number;
@@ -39,11 +40,28 @@ export default function ResultPage() {
   const [msgIdx, setMsgIdx] = useState(0);
 
   useEffect(() => {
-    const answers = JSON.parse(sessionStorage.getItem("quizAnswers") || "{}");
+    const rawAnswers = sessionStorage.getItem("quizAnswers");
     const ind = sessionStorage.getItem("industry") || "";
     const job = sessionStorage.getItem("jobType") || "";
     const grade = sessionStorage.getItem("grade") || "";
     const currentGakuchika = sessionStorage.getItem("currentGakuchika") || "";
+
+    // 診断フローを通っていない（＝マイページ等から再表示）→ 保存済みの結果を表示
+    if (!rawAnswers) {
+      const saved = getDiagnosis();
+      if (saved) {
+        setIndustry(saved.industry);
+        setJobType(saved.jobType);
+        setSuggestions(saved.suggestions);
+        setStrengthProfile(saved.strengthProfile);
+        setLoading(false);
+      } else {
+        router.replace("/start");
+      }
+      return;
+    }
+
+    const answers = JSON.parse(rawAnswers);
     setIndustry(ind);
     setJobType(job);
 
@@ -57,10 +75,18 @@ export default function ResultPage() {
         if (data.error) throw new Error(data.error);
         setSuggestions(data.suggestions);
         setStrengthProfile(data.strengthProfile || "");
+        saveDiagnosis({
+          date: new Date().toISOString(),
+          grade,
+          industry: ind,
+          jobType: job,
+          strengthProfile: data.strengthProfile || "",
+          suggestions: data.suggestions,
+        });
       })
       .catch(() => setError("提案の生成に失敗しました。もう一度お試しください。"))
       .finally(() => setLoading(false));
-  }, []);
+  }, [router]);
 
   useEffect(() => {
     if (!loading) return;
