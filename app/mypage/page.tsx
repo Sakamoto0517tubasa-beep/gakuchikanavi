@@ -202,7 +202,12 @@ export default function MyPage() {
           ))}
         </div>
 
-        <p className="text-[11px] text-gray-400 text-center mt-8">ガクチカナビ v1.0</p>
+        <div className="flex items-center justify-center gap-4 mt-8">
+          <Link href="/terms" className="text-[11px] text-gray-400 hover:text-gray-600">利用規約</Link>
+          <span className="text-gray-300 text-[11px]">·</span>
+          <Link href="/privacy" className="text-[11px] text-gray-400 hover:text-gray-600">プライバシーポリシー</Link>
+        </div>
+        <p className="text-[11px] text-gray-400 text-center mt-2">ガクチカナビ v1.0</p>
       </div>
     </main>
   );

@@ -57,7 +57,7 @@ const tabs = [
 export default function BottomNav() {
   const pathname = usePathname();
 
-  const hidden = ["/quiz", "/target", "/result", "/start", "/build"].some((p) => pathname.startsWith(p));
+  const hidden = ["/quiz", "/target", "/result", "/start", "/build", "/terms", "/privacy"].some((p) => pathname.startsWith(p));
   if (hidden) return null;
 
   return (
