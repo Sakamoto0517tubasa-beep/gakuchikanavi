@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 type Suggestion = {
   rank: number;
@@ -26,6 +27,7 @@ const LOADING_MSGS = [
 ];
 
 export default function ResultPage() {
+  const router = useRouter();
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [strengthProfile, setStrengthProfile] = useState("");
   const [loading, setLoading] = useState(true);
@@ -65,6 +67,11 @@ export default function ResultPage() {
     const t = setInterval(() => setMsgIdx((i) => (i + 1) % LOADING_MSGS.length), 1800);
     return () => clearInterval(t);
   }, [loading]);
+
+  function developGakuchika(s: Suggestion) {
+    sessionStorage.setItem("selectedGakuchika", JSON.stringify(s));
+    router.push("/build");
+  }
 
   function copySuggestion(s: Suggestion, i: number) {
     const text = `【${s.title}】\n${s.tagline}\n\n■なぜ刺さるか\n${s.reason}\n\n■今すぐできる第一歩\n${s.howToStart}\n\n■面接での話し方（STAR法）\n${s.script}`;
@@ -200,6 +207,13 @@ export default function ResultPage() {
                         )}
                       </button>
                     </div>
+                    <button
+                      onClick={() => developGakuchika(s)}
+                      className="w-full bg-[#F08300] text-white text-[15px] font-medium py-3.5 rounded flex items-center justify-center gap-1.5 active:scale-[0.99] hover:bg-[#d97600] transition-all"
+                    >
+                      このガクチカを深める
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                    </button>
                   </div>
                 </div>
               </div>
