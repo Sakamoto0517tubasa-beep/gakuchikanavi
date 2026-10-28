@@ -38,6 +38,7 @@ export default function ResultPage() {
   const [jobType, setJobType] = useState("");
   const [copied, setCopied] = useState<number | null>(null);
   const [msgIdx, setMsgIdx] = useState(0);
+  const [shared, setShared] = useState(false);
 
   useEffect(() => {
     const rawAnswers = sessionStorage.getItem("quizAnswers");
@@ -99,6 +100,23 @@ export default function ResultPage() {
     router.push("/build");
   }
 
+  async function shareResult() {
+    const top = suggestions[0];
+    const text = `ガクチカナビでAI診断しました。\n私の強みタイプは「${strengthProfile}」。\nおすすめガクチカ: ${top?.title ?? ""}\n\n#ガクチカナビ`;
+    const url = "https://gakuchikanavi.vercel.app";
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: "ガクチカナビ 診断結果", text, url });
+        return;
+      }
+    } catch { /* ユーザーがキャンセル等 */ return; }
+    try {
+      await navigator.clipboard.writeText(`${text}\n${url}`);
+      setShared(true);
+      setTimeout(() => setShared(false), 1800);
+    } catch {}
+  }
+
   function copySuggestion(s: Suggestion, i: number) {
     const text = `【${s.title}】\n${s.tagline}\n\n■なぜ刺さるか\n${s.reason}\n\n■今すぐできる第一歩\n${s.howToStart}\n\n■面接での話し方（STAR法）\n${s.script}`;
     navigator.clipboard?.writeText(text).then(() => {
@@ -138,6 +156,22 @@ export default function ResultPage() {
           </div>
           <h1 className="text-xl font-bold text-white mb-1.5">あなたへのおすすめガクチカ</h1>
           <p className="text-blue-100 text-[13px]">{industry}／{jobType} を志望するあなたへ</p>
+          <button
+            onClick={shareResult}
+            className="mt-4 inline-flex items-center gap-1.5 bg-white/15 text-white text-[13px] font-medium px-4 py-2 rounded-full active:scale-95 transition-transform"
+          >
+            {shared ? (
+              <>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                コピーしました
+              </>
+            ) : (
+              <>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><circle cx="18" cy="5" r="3" stroke="#fff" strokeWidth="1.8" /><circle cx="6" cy="12" r="3" stroke="#fff" strokeWidth="1.8" /><circle cx="18" cy="19" r="3" stroke="#fff" strokeWidth="1.8" /><path d="M8.6 10.5l6.8-4M8.6 13.5l6.8 4" stroke="#fff" strokeWidth="1.8" /></svg>
+                結果をシェア
+              </>
+            )}
+          </button>
         </div>
       </div>
 

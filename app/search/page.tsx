@@ -81,9 +81,9 @@ export default function SearchPage() {
       <div className="max-w-2xl mx-auto px-4 py-4">
         <p className="text-xs text-gray-500 mb-3"><span className="font-medium text-gray-700">{filtered.length}</span> 社</p>
         <div className="bg-white border border-gray-200 rounded-md divide-y divide-gray-100">
-          {filtered.map((company) => (
+          {filtered.map((company, idx) => (
             <button
-              key={company.name}
+              key={company.name + idx}
               onClick={() => setSelected(company.name)}
               className="w-full px-3.5 py-3 text-left flex items-center gap-3 hover:bg-gray-50 transition-colors"
             >
