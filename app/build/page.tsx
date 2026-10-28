@@ -72,6 +72,8 @@ export default function BuildPage() {
             structure: d.structure,
             appealPoints: d.appealPoints,
             interviewQs: d.interviewQs,
+            industry: sessionStorage.getItem("industry") || "",
+            jobType: sessionStorage.getItem("jobType") || "",
           });
         }
         setTimeout(() => window.scrollTo({ top: 9999, behavior: "smooth" }), 100);

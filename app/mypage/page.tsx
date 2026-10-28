@@ -4,7 +4,8 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import {
   getDiagnosis, getGakuchikaList, deleteGakuchika, formatDate,
-  type SavedDiagnosis, type SavedGakuchika,
+  addPost, getPosts, getScoutInterests,
+  type SavedDiagnosis, type SavedGakuchika, type ScoutInterest,
 } from "@/lib/storage";
 
 export default function MyPage() {
@@ -12,11 +13,29 @@ export default function MyPage() {
   const [gakuchikas, setGakuchikas] = useState<SavedGakuchika[]>([]);
   const [openId, setOpenId] = useState<string | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [postedTitles, setPostedTitles] = useState<string[]>([]);
+  const [interests, setInterests] = useState<ScoutInterest[]>([]);
 
   useEffect(() => {
     setDiagnosis(getDiagnosis());
     setGakuchikas(getGakuchikaList());
+    setPostedTitles(getPosts().map((p) => p.title));
+    setInterests(getScoutInterests());
   }, []);
+
+  function post(g: SavedGakuchika) {
+    addPost({
+      id: (typeof crypto !== "undefined" && crypto.randomUUID) ? crypto.randomUUID() : String(Date.now()),
+      date: new Date().toISOString(),
+      grade: diagnosis?.grade || "",
+      industry: g.industry || diagnosis?.industry || "",
+      jobType: g.jobType || diagnosis?.jobType || "",
+      category: "",
+      title: g.title,
+      body: g.fullText,
+    });
+    setPostedTitles(getPosts().map((p) => p.title));
+  }
 
   const done = !!diagnosis;
 
@@ -126,9 +145,16 @@ export default function MyPage() {
                             <span key={i} className="text-[12px] text-[#0096DF] border border-[#9fd3ef] bg-[#EAF4FB] rounded-full px-2.5 py-0.5">{p}</span>
                           ))}
                         </div>
-                        <div className="flex items-center gap-3 mt-4">
+                        <div className="flex items-center gap-2 mt-4">
                           <button onClick={() => copy(g)} className="flex items-center gap-1.5 text-xs font-medium text-[#0096DF] border border-[#9fd3ef] bg-[#EAF4FB] rounded px-3 py-1.5 active:scale-95 transition-transform">
                             {copiedId === g.id ? "コピーしました" : "本文をコピー"}
+                          </button>
+                          <button
+                            onClick={() => post(g)}
+                            disabled={postedTitles.includes(g.title)}
+                            className="flex items-center gap-1.5 text-xs font-medium text-white bg-[#0096DF] rounded px-3 py-1.5 active:scale-95 transition-transform disabled:bg-gray-300"
+                          >
+                            {postedTitles.includes(g.title) ? "投稿済み" : "みんなに投稿"}
                           </button>
                           <button onClick={() => remove(g.id)} className="text-xs text-gray-400 hover:text-red-500 transition-colors ml-auto">削除</button>
                         </div>
@@ -139,6 +165,28 @@ export default function MyPage() {
               );
             })}
           </div>
+        )}
+
+        {/* 気になる企業 */}
+        {interests.length > 0 && (
+          <>
+            <div className="flex items-center gap-2 mb-2 px-1">
+              <span className="w-1 h-4 bg-[#0096DF]" />
+              <h2 className="text-[13px] font-medium text-[#0A3059]">気になる企業</h2>
+              <span className="text-[11px] text-gray-400">{interests.length}社</span>
+            </div>
+            <div className="bg-white rounded border border-gray-200 divide-y divide-gray-100 mb-5">
+              {interests.map((it, i) => (
+                <div key={it.company + i} className="px-4 py-3 flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-gray-800">{it.company}</p>
+                    <p className="text-[11px] text-gray-400 mt-0.5">{it.role}</p>
+                  </div>
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="#F08300"><path d="M12 21C5.5 14.5 3 11.5 3 8.5A4.5 4.5 0 0112 6a4.5 4.5 0 019 2.5c0 3-2.5 6-9 12.5z" /></svg>
+                </div>
+              ))}
+            </div>
+          </>
         )}
 
         {/* メニュー */}

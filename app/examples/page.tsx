@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { examples, exampleCategories } from "@/lib/examples";
+import { getPosts, deletePost, formatDate, type UserPost } from "@/lib/storage";
 
 const CAT_COLOR: Record<string, string> = {
   "アルバイト": "#EA6C00", "サークル": "#0096DF", "ゼミ・研究": "#2E7D32",
@@ -10,7 +11,17 @@ const CAT_COLOR: Record<string, string> = {
 
 export default function ExamplesPage() {
   const [cat, setCat] = useState("すべて");
+  const [posts, setPosts] = useState<UserPost[]>([]);
+
+  useEffect(() => { setPosts(getPosts()); }, []);
+
+  function removePost(id: string) {
+    deletePost(id);
+    setPosts(getPosts());
+  }
+
   const list = examples.filter((e) => cat === "すべて" || e.category === cat);
+  const showPosts = cat === "すべて" ? posts : posts.filter((p) => p.category === cat);
 
   return (
     <main className="min-h-screen bg-[#F2F3F5]">
@@ -37,6 +48,25 @@ export default function ExamplesPage() {
       </div>
 
       <div className="max-w-2xl mx-auto px-4 py-4 flex flex-col gap-3">
+        {showPosts.map((p) => (
+          <article key={p.id} className="bg-white rounded border-2 border-[#9fd3ef] px-4 py-4">
+            <div className="flex items-center gap-2.5 mb-3">
+              <span className="w-9 h-9 rounded-full bg-[#EAF4FB] flex items-center justify-center shrink-0">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0096DF" strokeWidth="1.6"><circle cx="12" cy="8" r="3.5" /><path d="M5 20c0-3.9 3.1-7 7-7s7 3.1 7 7" strokeLinecap="round" /></svg>
+              </span>
+              <div className="flex-1 min-w-0">
+                <p className="text-[13px] text-gray-800">あなたの投稿{p.grade ? `・${p.grade}` : ""}</p>
+                <p className="text-[11px] text-gray-400">志望：{p.industry}／{p.jobType}・{formatDate(p.date)}</p>
+              </div>
+              <span className="text-[10px] text-white px-1.5 py-0.5 rounded-sm shrink-0 bg-[#0096DF]">自分</span>
+            </div>
+            <p className="text-[15px] font-medium text-gray-900 mb-1.5">{p.title}</p>
+            <p className="text-[13px] text-gray-600 leading-relaxed whitespace-pre-wrap">{p.body}</p>
+            <div className="flex justify-end mt-3 pt-3 border-t border-gray-100">
+              <button onClick={() => removePost(p.id)} className="text-xs text-gray-400 hover:text-red-500 transition-colors">投稿を削除</button>
+            </div>
+          </article>
+        ))}
         {list.map((e) => (
           <article key={e.id} className="bg-white rounded border border-gray-200 px-4 py-4">
             {/* 投稿者 */}

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { companies } from "@/lib/companies";
 import CompanyLogo from "@/components/CompanyLogo";
-import { getDiagnosis, type SavedDiagnosis } from "@/lib/storage";
+import { getDiagnosis, getScoutInterests, toggleScoutInterest, type SavedDiagnosis } from "@/lib/storage";
 
 // 志望業界 → 企業カテゴリ
 const INDUSTRY_TO_CAT: Record<string, string> = {
@@ -27,11 +27,18 @@ const DATES = ["1日前", "2日前", "4日前", "1週間前", "2週間前"];
 export default function ScoutPage() {
   const [diag, setDiag] = useState<SavedDiagnosis | null>(null);
   const [loaded, setLoaded] = useState(false);
+  const [interested, setInterested] = useState<string[]>([]);
 
   useEffect(() => {
     setDiag(getDiagnosis());
+    setInterested(getScoutInterests().map((s) => s.company));
     setLoaded(true);
   }, []);
+
+  function onInterest(company: string, role: string) {
+    toggleScoutInterest(company, role);
+    setInterested(getScoutInterests().map((s) => s.company));
+  }
 
   const cat = diag ? INDUSTRY_TO_CAT[diag.industry] ?? "その他" : "";
   const matched = diag ? companies.filter((c) => c.category === cat).slice(0, 5) : [];
@@ -82,18 +89,33 @@ export default function ScoutPage() {
                 <div key={c.name + i} className="px-4 py-3.5 flex items-start gap-3">
                   <CompanyLogo name={c.name} category={c.category} size={42} />
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-1.5">
-                      {unread && <span className="w-1.5 h-1.5 rounded-full bg-[#F08300] shrink-0" />}
-                      <p className="text-[13px] text-gray-500 truncate">{c.name}</p>
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-1.5 min-w-0">
+                        {unread && <span className="w-1.5 h-1.5 rounded-full bg-[#F08300] shrink-0" />}
+                        <p className="text-[13px] text-gray-500 truncate">{c.name}</p>
+                      </div>
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        <span className="text-[11px] text-gray-400">{DATES[i]}</span>
+                        {unread && <span className="text-[10px] font-medium bg-[#F08300] text-white px-1.5 py-0.5 rounded-sm">NEW</span>}
+                      </div>
                     </div>
                     <p className="text-sm font-medium text-gray-800 mt-0.5">{diag.jobType}職インターンのご案内</p>
                     <p className="text-[12px] text-gray-500 mt-1 leading-relaxed">
                       あなたの「{diag.strengthProfile}」という強みに注目しました。ぜひ一度お話ししませんか？
                     </p>
-                  </div>
-                  <div className="flex flex-col items-end gap-1 shrink-0">
-                    <span className="text-[11px] text-gray-400">{DATES[i]}</span>
-                    {unread && <span className="text-[10px] font-medium bg-[#F08300] text-white px-1.5 py-0.5 rounded-sm">NEW</span>}
+                    <button
+                      onClick={() => onInterest(c.name, `${diag.jobType}職インターン`)}
+                      className={`mt-2.5 inline-flex items-center gap-1.5 text-xs font-medium px-3.5 py-1.5 rounded-full border active:scale-95 transition-all ${
+                        interested.includes(c.name)
+                          ? "bg-[#FDEEE6] border-[#F08300] text-[#F08300]"
+                          : "bg-white border-gray-300 text-gray-600"
+                      }`}
+                    >
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill={interested.includes(c.name) ? "#F08300" : "none"} stroke="#F08300" strokeWidth="1.8">
+                        <path d="M12 21C5.5 14.5 3 11.5 3 8.5A4.5 4.5 0 0112 6a4.5 4.5 0 019 2.5c0 3-2.5 6-9 12.5z" strokeLinejoin="round" />
+                      </svg>
+                      {interested.includes(c.name) ? "興味ありに登録済み" : "興味あり"}
+                    </button>
                   </div>
                 </div>
               );
