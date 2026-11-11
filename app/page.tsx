@@ -77,6 +77,20 @@ export default function Home() {
         </button>
       </div>
 
+      {/* 経験から発掘 */}
+      <div className="max-w-2xl mx-auto px-4 pt-4">
+        <button onClick={() => router.push("/discover")} className="w-full text-left bg-white rounded border border-gray-200 flex items-center gap-3 px-4 py-3.5 active:bg-gray-50 transition-colors">
+          <span className="w-10 h-10 rounded-full bg-[#FDEEE6] flex items-center justify-center shrink-0">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#F08300" strokeWidth="1.8"><circle cx="11" cy="11" r="7" /><path d="M16.5 16.5L21 21" strokeLinecap="round" /><path d="M11 8v6M8 11h6" strokeLinecap="round" /></svg>
+          </span>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium text-gray-800">今ある経験からガクチカを見つける</p>
+            <p className="text-[12px] text-gray-500 mt-0.5">「ガクチカがない」と思っている人へ。日常の経験に光を当てます</p>
+          </div>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="#c7cdd4" className="shrink-0"><path d="M9.29 6.71a1 1 0 000 1.41L13.17 12l-3.88 3.88a1 1 0 101.42 1.41l4.58-4.58a1 1 0 000-1.41L10.71 6.7a1 1 0 00-1.42.01z" /></svg>
+        </button>
+      </div>
+
       {/* コラム・お知らせ */}
       <div className="max-w-2xl mx-auto px-4 pt-6">
         <h2 className="text-[14px] text-[#0A3059] mb-2.5 flex items-center gap-2">
