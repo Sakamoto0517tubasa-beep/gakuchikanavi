@@ -6,6 +6,10 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://gakuchikanavi.vercel.app"),
   title: "ガクチカナビ｜AIがあなたに最適なガクチカを提案",
   description: "強み×志望業界×職種から、選考で評価されるガクチカをAIが3分で提案。学年に合わせて今から作れるガクチカが見つかる、新卒就活生向けの無料サービス。",
+  keywords: ["ガクチカナビ", "ガクチカ", "ガクチカ 診断", "ガクチカ 作り方", "ガクチカ 例", "就活", "新卒", "自己PR", "AI診断"],
+  applicationName: "ガクチカナビ",
+  alternates: { canonical: "https://gakuchikanavi.vercel.app" },
+  robots: { index: true, follow: true },
   openGraph: {
     title: "ガクチカナビ｜AIがあなたに最適なガクチカを提案",
     description: "強み×志望業界×職種から、選考で評価されるガクチカをAIが3分で提案。新卒就活生向けの無料サービス。",
@@ -22,9 +26,19 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "ガクチカナビ",
+    alternateName: "ガクチカ診断ナビ",
+    url: "https://gakuchikanavi.vercel.app",
+    description: "AIが強み×志望業界×職種から、選考で評価されるガクチカを提案する新卒就活生向けの無料サービス。",
+    inLanguage: "ja",
+  };
   return (
     <html lang="ja">
       <body style={{ fontFamily: "'Hiragino Kaku Gothic ProN', 'Hiragino Sans', 'Yu Gothic', 'YuGothic', Meiryo, sans-serif" }}>
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
         <div className="pb-16">{children}</div>
         <BottomNav />
       </body>
