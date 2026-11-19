@@ -81,6 +81,14 @@ export async function POST(req: NextRequest) {
 - 新しく始める挑戦（長期インターン、留学、学生団体の立ち上げ、継続的な個人活動など）も積極的に提案してよい。
 - 推奨期間(period)は「半年〜2年」を目安に、活動に応じて設定する。`;
 
+    const industryUndecided = !industry || industry === "まだ決めていない";
+    const jobUndecided = !jobType || jobType === "まだ決めていない";
+    const targetInstruction = (industryUndecided || jobUndecided)
+      ? `【志望が未定の項目について】
+${industryUndecided ? "志望業界：まだ決めていない" : `志望業界：${industry}`}／${jobUndecided ? "志望職種：まだ決めていない" : `志望職種：${jobType}`}
+未定の項目は特定の業界・職種に無理に寄せないこと。代わりに、どの進路でも通用する汎用性が高く、かつ「自分の興味・適性・向いている方向性を見つけるきっかけにもなる」ガクチカを提案する。reasonでは志望の評価ポイントにこじつけず、この人の強みが活きることを軸に説明する。`
+      : `志望業界：${industry}／志望職種：${jobType}`;
+
     const answerList: { q: string; a: string }[] = Array.isArray(answers)
       ? answers
       : Object.entries(answers as Record<string, string>).map(([id, val]) => ({
@@ -119,8 +127,7 @@ export async function POST(req: NextRequest) {
 ${gradeInstruction}
 
 【学生プロフィール】
-志望業界: ${industry}
-志望職種: ${jobType}
+${targetInstruction}
 ${currentGakuchika ? `現在のガクチカ: ${currentGakuchika}（これを深掘り・発展させる案も1つ含める）` : ""}
 
 【診断回答（この人の強み・性格）】
@@ -128,7 +135,7 @@ ${answerSummary}
 
 【提案のルール】
 - 各案は、診断回答から読み取れる「この人固有の強み」が主役になるように設計する。reasonで必ずどの回答に基づくか具体的に触れる。
-- ${industry}の${jobType}の選考で評価されるポイント（例：営業なら相手に合わせた提案力と行動量、エンジニアなら課題を技術で解決する姿勢、企画なら0→1の構想力など）に接続させる。ただし活動自体は学生がやること。
+- 志望業界・職種が決まっている場合は、その選考で評価されるポイント（例：営業なら相手に合わせた提案力と行動量、エンジニアなら課題を技術で解決する姿勢、企画なら0→1の構想力など）に接続させる。未定の場合は特定の進路に寄せず、どこでも通用する強みと、興味・適性を見つけるきっかけになる点を軸にする。ただし活動自体は学生がやること。
 - howToStartは、今日〜今週に大学生が実際に踏み出せる超具体的な第一歩（声をかける相手・使うサービス名・最初の1アクション）を書く。
 - scriptはSTAR（状況・課題・行動・結果）が伝わる、面接でそのまま使える話し方の骨子にする。数字を1つ入れる。
 

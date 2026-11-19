@@ -46,6 +46,16 @@ export default function TargetPage() {
               </button>
             ))}
           </div>
+          <button
+            onClick={() => setIndustry("まだ決めていない")}
+            className={`mt-2 w-full px-4 py-3 rounded border text-sm font-medium transition-all ${
+              industry === "まだ決めていない"
+                ? "border-[#0096DF] bg-[#EAF4FB] text-[#0A3059]"
+                : "border-dashed border-gray-300 text-gray-500 hover:border-gray-400"
+            }`}
+          >
+            まだ決めていない
+          </button>
         </div>
 
         {/* 職種 */}
@@ -66,6 +76,16 @@ export default function TargetPage() {
               </button>
             ))}
           </div>
+          <button
+            onClick={() => setJobType("まだ決めていない")}
+            className={`mt-2 w-full px-4 py-3 rounded border text-sm font-medium transition-all ${
+              jobType === "まだ決めていない"
+                ? "border-[#0096DF] bg-[#EAF4FB] text-[#0A3059]"
+                : "border-dashed border-gray-300 text-gray-500 hover:border-gray-400"
+            }`}
+          >
+            まだ決めていない
+          </button>
         </div>
 
         {/* 現在のガクチカ */}
