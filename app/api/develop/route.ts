@@ -7,7 +7,11 @@ const groq = new Groq({ apiKey: cleanKey });
 
 export async function POST(req: NextRequest) {
   try {
-    const { gakuchika, industry, jobType, grade, inputs } = await req.json();
+    const { gakuchika, industry, jobType, grade, inputs, dialogue } = await req.json();
+
+    const digText = Array.isArray(dialogue) && dialogue.length
+      ? dialogue.map((d: { q: string; a: string }) => `Q: ${d.q}\nA: ${d.a}`).join("\n")
+      : "";
 
     const prompt = `あなたは新卒就活のトップコーチです。学生が選んだガクチカのテーマを、面接・ESでそのまま使える「完成したガクチカ」に仕上げてください。
 
@@ -22,6 +26,9 @@ export async function POST(req: NextRequest) {
 志望業界: ${industry}
 志望職種: ${jobType}
 
+${digText ? `【AIとの壁打ちで本人から引き出した内容（最重要・ここを最大限に活かす）】
+${digText}
+` : ""}
 【本人が入力した具体情報（空欄があればあなたが現実的に補完する）】
 なぜ取り組む(取り組んだ)のか・きっかけ・原体験: ${inputs?.motivation || "（未入力）"}
 取り組む場面・環境: ${inputs?.situation || "（未入力）"}

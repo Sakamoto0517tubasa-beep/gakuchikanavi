@@ -50,6 +50,12 @@ export default function BuildPage() {
   const [refining, setRefining] = useState(false);
   const [quality, setQuality] = useState<Quality | null>(null);
   const [qLoading, setQLoading] = useState(false);
+  const [digHistory, setDigHistory] = useState<{ q: string; a: string }[]>([]);
+  const [digQ, setDigQ] = useState<string | null>(null);
+  const [digInput, setDigInput] = useState("");
+  const [digLoading, setDigLoading] = useState(false);
+  const [digStarted, setDigStarted] = useState(false);
+  const [digDone, setDigDone] = useState(false);
 
   useEffect(() => {
     const raw = sessionStorage.getItem("selectedGakuchika");
@@ -73,6 +79,7 @@ export default function BuildPage() {
         jobType: sessionStorage.getItem("jobType") || "",
         grade: sessionStorage.getItem("grade") || "",
         inputs,
+        dialogue: digHistory,
       }),
     })
       .then((r) => r.json())
@@ -166,6 +173,39 @@ export default function BuildPage() {
       .finally(() => setRefining(false));
   }
 
+  function fetchDig(history: { q: string; a: string }[]) {
+    setDigLoading(true);
+    setError("");
+    return fetch("/api/dig", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ gakuchika, history }),
+    })
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.error || !d.question) throw new Error();
+        if (d.done) { setDigDone(true); setDigQ(null); }
+        else setDigQ(d.question);
+      })
+      .catch(() => setError("壁打ちの質問取得に失敗しました。もう一度お試しください。"))
+      .finally(() => setDigLoading(false));
+  }
+
+  function startDig() {
+    setDigStarted(true);
+    setDigHistory([]);
+    setDigDone(false);
+    fetchDig([]);
+  }
+
+  function submitDig() {
+    if (!digInput.trim() || !digQ || digLoading) return;
+    const nh = [...digHistory, { q: digQ, a: digInput.trim() }];
+    setDigHistory(nh);
+    setDigInput("");
+    fetchDig(nh);
+  }
+
   function copyText() {
     if (!result) return;
     navigator.clipboard?.writeText(result.fullText).then(() => {
@@ -220,10 +260,81 @@ export default function BuildPage() {
           </div>
         </div>
 
+        {/* AI壁打ち */}
+        <div className="flex items-center gap-2 mb-3 px-1">
+          <span className="w-1 h-4 bg-[#F08300]" />
+          <h2 className="text-[14px] font-medium text-[#0A3059]">AIと壁打ちして深める（おすすめ）</h2>
+        </div>
+        <div className="bg-white rounded border border-gray-200 overflow-hidden mb-6">
+          {!digStarted ? (
+            <div className="px-4 py-4 text-center">
+              <p className="text-[13px] text-gray-600 mb-3 leading-relaxed">
+                AIが1問ずつ質問します。答えるうちに、自分でも気づいていなかった<span className="font-medium text-[#0A3059]">動機やエピソード</span>が引き出され、ガクチカが一気に深まります。
+              </p>
+              <button onClick={startDig} disabled={digLoading}
+                className="inline-flex items-center justify-center gap-2 bg-[#0096DF] text-white text-sm font-medium px-6 py-2.5 rounded active:scale-95 transition-transform disabled:opacity-50">
+                {digLoading ? <><span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />準備中...</> : "壁打ちを始める"}
+              </button>
+            </div>
+          ) : (
+            <div className="px-4 py-4">
+              {/* これまでのやり取り */}
+              {digHistory.length > 0 && (
+                <div className="flex flex-col gap-3 mb-4">
+                  {digHistory.map((h, i) => (
+                    <div key={i}>
+                      <div className="flex gap-2 mb-1">
+                        <span className="shrink-0 w-6 h-6 rounded-full bg-[#EAF4FB] flex items-center justify-center text-[11px] font-medium text-[#0096DF]">Q</span>
+                        <p className="text-[13px] text-gray-700 pt-0.5">{h.q}</p>
+                      </div>
+                      <div className="flex gap-2">
+                        <span className="shrink-0 w-6 h-6 rounded-full bg-[#FDF3E7] flex items-center justify-center text-[11px] font-medium text-[#EA6C00]">A</span>
+                        <p className="text-[13px] text-gray-500 pt-0.5 whitespace-pre-wrap">{h.a}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {digDone ? (
+                <div className="bg-[#EAF4FB] rounded px-3 py-3 text-center">
+                  <p className="text-[13px] font-medium text-[#0A3059]">壁打ちで{digHistory.length}つの材料が集まりました</p>
+                  <p className="text-[12px] text-gray-500 mt-1">この内容を反映してガクチカを作成します。下の「ガクチカを完成させる」へ。</p>
+                </div>
+              ) : digLoading && !digQ ? (
+                <div className="flex items-center gap-2 text-gray-400 text-[13px] py-2">
+                  <span className="w-4 h-4 border-2 border-[#0096DF] border-t-transparent rounded-full animate-spin" />AIが次の質問を考えています...
+                </div>
+              ) : digQ ? (
+                <div>
+                  <div className="bg-[#F7F9FB] border border-gray-100 rounded px-3 py-2.5 mb-2.5">
+                    <p className="text-[14px] text-[#0A3059] font-medium leading-relaxed">{digQ}</p>
+                  </div>
+                  <textarea
+                    value={digInput}
+                    onChange={(e) => setDigInput(e.target.value)}
+                    placeholder="思いつくまま書いてOK。短くても大丈夫です。"
+                    rows={2}
+                    className="w-full border border-gray-200 rounded px-3 py-2 text-sm text-gray-700 focus:outline-none focus:border-[#0096DF] resize-none"
+                  />
+                  <div className="flex items-center gap-2 mt-2">
+                    <button onClick={submitDig} disabled={digLoading || !digInput.trim()}
+                      className="bg-[#0096DF] text-white text-sm font-medium px-5 py-2 rounded active:scale-95 transition-transform disabled:bg-gray-300">
+                      {digLoading ? "…" : "答える"}
+                    </button>
+                    <button onClick={() => { setDigDone(true); setDigQ(null); }}
+                      className="text-xs text-gray-400 hover:text-gray-600 ml-auto">もう十分・終える</button>
+                  </div>
+                </div>
+              ) : null}
+            </div>
+          )}
+        </div>
+
         {/* 入力フォーム */}
         <div className="flex items-center gap-2 mb-3 px-1">
           <span className="w-1 h-4 bg-[#0096DF]" />
-          <h2 className="text-[14px] font-medium text-[#0A3059]">中身を具体的にしていこう</h2>
+          <h2 className="text-[14px] font-medium text-[#0A3059]">中身を具体的にしていこう<span className="text-[12px] text-gray-400 font-normal">（壁打ちをしない場合はこちら）</span></h2>
         </div>
         <p className="text-[13px] text-gray-500 mb-4 px-1">
           分かる範囲でOK。空欄はAIが現実的に補ってくれます。
