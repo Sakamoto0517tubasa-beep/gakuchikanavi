@@ -15,11 +15,8 @@ type Suggestion = {
   period: string;
 };
 
-const RANK_CONFIG = [
-  { label: "イチオシ", bg: "#F08300" },
-  { label: "2番目", bg: "#0A3059" },
-  { label: "3番目", bg: "#5b7a9a" },
-];
+function rankLabel(i: number) { return i === 0 ? "イチオシ" : `${i + 1}`; }
+function rankBg(i: number) { return i === 0 ? "#F08300" : i < 3 ? "#0A3059" : "#5b7a9a"; }
 
 const LOADING_MSGS = [
   "回答から強みを分析しています...",
@@ -191,7 +188,6 @@ export default function ResultPage() {
         )}
 
         {suggestions.map((s, i) => {
-          const cfg = RANK_CONFIG[i] ?? RANK_CONFIG[2];
           const isOpen = expanded === i;
           return (
             <div
@@ -208,9 +204,9 @@ export default function ResultPage() {
                   <div className="flex items-start gap-3">
                     <span
                       className="text-xs font-medium px-2.5 py-1 shrink-0 mt-0.5 rounded-sm"
-                      style={{ backgroundColor: cfg.bg, color: "#fff" }}
+                      style={{ backgroundColor: rankBg(i), color: "#fff" }}
                     >
-                      {cfg.label}
+                      {rankLabel(i)}
                     </span>
                     <div className="flex-1 min-w-0">
                       <p className="text-base font-bold text-gray-800 leading-snug">{s.title}</p>
