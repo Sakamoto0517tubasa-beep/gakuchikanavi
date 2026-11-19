@@ -124,6 +124,7 @@ export default function BuildPage() {
   function runQuality(text?: string) {
     const target = text ?? result?.fullText;
     if (!target) return Promise.resolve();
+    setError("");
     setQLoading(true);
     return fetch("/api/quality", {
       method: "POST",
@@ -142,6 +143,7 @@ export default function BuildPage() {
 
   function strengthenAxis(key: string) {
     if (!result || refining) return;
+    setError("");
     setRefining(true);
     fetch("/api/refine", {
       method: "POST",
