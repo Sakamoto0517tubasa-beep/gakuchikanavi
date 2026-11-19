@@ -15,9 +15,20 @@ type Suggestion = {
 
 type Developed = {
   fullText: string;
-  structure: { situation: string; task: string; action: string; result: string };
+  structure: { motivation: string; situation: string; task: string; action: string; result: string };
   appealPoints: string[];
   interviewQs: string[];
+};
+
+type QualityAxis = { key: string; name: string; score: number; comment: string };
+type Quality = { total: number; summary: string; axes: QualityAxis[] };
+
+const AXIS_FIX: Record<string, string> = {
+  motivation: "なぜ取り組んだのか（動機・原体験・価値観）をさらに深く掘り下げ、冒頭と締めに反映して書き直して",
+  concreteness: "具体的な行動の中身と、成果を示す数字をもっと加えて書き直して",
+  learning: "この経験から得た学びと、それが今後どう活きるかを具体的に加えて書き直して",
+  coherence: "動機から状況・行動・結果・学びまでが一本の筋で通るように整えて書き直して",
+  originality: "ありきたりな表現を避け、自分らしさ・個性が伝わる具体的なエピソードを加えて書き直して",
 };
 
 const FIELDS = [
@@ -37,6 +48,8 @@ export default function BuildPage() {
   const [copied, setCopied] = useState(false);
   const [refineReq, setRefineReq] = useState("");
   const [refining, setRefining] = useState(false);
+  const [quality, setQuality] = useState<Quality | null>(null);
+  const [qLoading, setQLoading] = useState(false);
 
   useEffect(() => {
     const raw = sessionStorage.getItem("selectedGakuchika");
@@ -50,6 +63,7 @@ export default function BuildPage() {
   function generate() {
     setLoading(true);
     setError("");
+    setQuality(null);
     fetch("/api/develop", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -107,6 +121,49 @@ export default function BuildPage() {
       .finally(() => setRefining(false));
   }
 
+  function runQuality(text?: string) {
+    const target = text ?? result?.fullText;
+    if (!target) return Promise.resolve();
+    setQLoading(true);
+    return fetch("/api/quality", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        fullText: target,
+        industry: sessionStorage.getItem("industry") || "",
+        jobType: sessionStorage.getItem("jobType") || "",
+      }),
+    })
+      .then((r) => r.json())
+      .then((d) => { if (d.error || !d.axes) throw new Error(); setQuality(d); })
+      .catch(() => setError("品質診断に失敗しました。もう一度お試しください。"))
+      .finally(() => setQLoading(false));
+  }
+
+  function strengthenAxis(key: string) {
+    if (!result || refining) return;
+    setRefining(true);
+    fetch("/api/refine", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        fullText: result.fullText,
+        request: AXIS_FIX[key] ?? "もっと良くして",
+        industry: sessionStorage.getItem("industry") || "",
+        jobType: sessionStorage.getItem("jobType") || "",
+      }),
+    })
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.error || !d.fullText) throw new Error();
+        const nf = d.fullText as string;
+        setResult((r) => (r ? { ...r, fullText: nf } : r));
+        return runQuality(nf);
+      })
+      .catch(() => setError("強化に失敗しました。もう一度お試しください。"))
+      .finally(() => setRefining(false));
+  }
+
   function copyText() {
     if (!result) return;
     navigator.clipboard?.writeText(result.fullText).then(() => {
@@ -133,6 +190,34 @@ export default function BuildPage() {
       </div>
 
       <div className="max-w-2xl mx-auto px-4 py-6">
+        {/* なぜ取り組むのか（動機・原体験）= 最重要 */}
+        <div className="flex items-center gap-2 mb-3 px-1">
+          <span className="w-1 h-4 bg-[#F08300]" />
+          <h2 className="text-[14px] font-medium text-[#0A3059]">まず「なぜ」から考えよう</h2>
+        </div>
+        <div className="bg-white rounded border border-[#F3C48A] overflow-hidden mb-6">
+          <div className="bg-[#FDF3E7] px-4 py-2.5">
+            <p className="text-[12px] text-[#9A5A17] leading-relaxed">
+              面接官が本当に知りたいのは「何をしたか」より<span className="font-bold">「なぜそれに取り組んだのか」</span>。ここが深いほど、あなただけのガクチカになります。
+            </p>
+          </div>
+          <div className="px-4 py-3.5">
+            <label className="block text-[13px] font-medium text-gray-800 mb-1.5">
+              なぜこの活動に取り組むのか（きっかけ・原体験）
+            </label>
+            <textarea
+              value={inputs.motivation || ""}
+              onChange={(e) => setInputs({ ...inputs, motivation: e.target.value })}
+              placeholder="例：高校時代に自分が人見知りで損をした経験から、同じ思いをする人を減らしたいと思った"
+              rows={3}
+              className="w-full border border-gray-200 rounded px-3 py-2 text-sm text-gray-700 focus:outline-none focus:border-[#F08300] resize-none"
+            />
+            <p className="text-[11px] text-gray-400 mt-1.5 leading-relaxed">
+              うまく言葉にできなくてもOK。断片的なきっかけを書けば、AIが一緒に深掘りします。
+            </p>
+          </div>
+        </div>
+
         {/* 入力フォーム */}
         <div className="flex items-center gap-2 mb-3 px-1">
           <span className="w-1 h-4 bg-[#0096DF]" />
@@ -217,18 +302,77 @@ export default function BuildPage() {
               </div>
             </div>
 
-            {/* 構成（STAR） */}
+            {/* ガクチカ品質診断 */}
+            <div className="fade-in-up bg-white rounded border border-gray-200 overflow-hidden" style={{ animationDelay: "0.04s" }}>
+              <div className="bg-[#0A3059] px-4 py-2.5 flex items-center gap-2">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.8"><path d="M3 13a9 9 0 1118 0" /><path d="M12 13l4-3" strokeLinecap="round" /></svg>
+                <span className="text-[13px] font-medium text-white">ガクチカ品質診断</span>
+              </div>
+              {!quality ? (
+                <div className="px-4 py-5 text-center">
+                  <p className="text-[13px] text-gray-500 mb-3">このガクチカの強さを5つの観点でAIが採点します。</p>
+                  <button onClick={() => runQuality()} disabled={qLoading}
+                    className="inline-flex items-center justify-center gap-2 bg-[#0096DF] text-white text-sm font-medium px-6 py-2.5 rounded active:scale-95 transition-transform disabled:opacity-50">
+                    {qLoading ? <><span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />採点中...</> : "品質を診断する"}
+                  </button>
+                </div>
+              ) : (
+                <div className="px-4 py-4">
+                  <div className="flex items-end gap-3 mb-1">
+                    <div className="flex items-baseline gap-0.5">
+                      <span className="text-3xl font-bold text-[#0A3059] tabular-nums">{quality.total}</span>
+                      <span className="text-sm text-gray-400 font-medium">/ 100点</span>
+                    </div>
+                    {qLoading && <span className="w-4 h-4 border-2 border-[#0096DF] border-t-transparent rounded-full animate-spin mb-1.5" />}
+                  </div>
+                  <p className="text-[13px] text-gray-600 mb-4 leading-relaxed">{quality.summary}</p>
+                  <div className="flex flex-col gap-3">
+                    {quality.axes?.map((a) => {
+                      const col = a.score >= 16 ? "#2E9E6B" : a.score >= 12 ? "#0096DF" : "#EA6C00";
+                      return (
+                        <div key={a.key}>
+                          <div className="flex items-center justify-between mb-1">
+                            <span className="text-[13px] font-medium text-gray-800">{a.name}</span>
+                            <span className="text-[12px] font-medium tabular-nums" style={{ color: col }}>{a.score}/20</span>
+                          </div>
+                          <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden mb-1">
+                            <div className="h-full rounded-full" style={{ width: `${(a.score / 20) * 100}%`, backgroundColor: col }} />
+                          </div>
+                          <div className="flex items-start justify-between gap-2">
+                            <p className="text-[12px] text-gray-500 leading-relaxed flex-1">{a.comment}</p>
+                            {a.score < 16 && (
+                              <button onClick={() => strengthenAxis(a.key)} disabled={refining}
+                                className="shrink-0 text-[11px] font-medium text-[#EA6C00] border border-[#F3C48A] bg-[#FDF3E7] rounded px-2 py-1 active:scale-95 transition-transform disabled:opacity-50">
+                                この軸を強化
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  {refining && <p className="text-[12px] text-gray-400 mt-3">AIが本文を強化しています...</p>}
+                  <button onClick={() => runQuality()} disabled={qLoading || refining}
+                    className="mt-4 w-full text-center py-2.5 border border-gray-300 rounded text-[13px] font-medium text-gray-600 bg-white hover:bg-gray-50 active:scale-[0.99] transition-all disabled:opacity-50">
+                    もう一度採点する
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* 構成（動機＋STAR） */}
             <div className="fade-in-up bg-white rounded border border-gray-200 px-4 py-4" style={{ animationDelay: "0.08s" }}>
-              <p className="text-[13px] font-medium text-[#0A3059] mb-3">構成（STAR）</p>
+              <p className="text-[13px] font-medium text-[#0A3059] mb-3">構成（動機 ＋ STAR）</p>
               <div className="flex flex-col gap-2.5">
                 {[
+                  { k: "動機", v: result.structure?.motivation, hl: true },
                   { k: "状況", v: result.structure?.situation },
                   { k: "課題", v: result.structure?.task },
                   { k: "行動", v: result.structure?.action },
                   { k: "結果", v: result.structure?.result },
                 ].map((x) => (
                   <div key={x.k} className="flex gap-3">
-                    <span className="text-[11px] font-medium text-white bg-[#0A3059] rounded-sm px-2 py-0.5 h-fit shrink-0">{x.k}</span>
+                    <span className={`text-[11px] font-medium text-white rounded-sm px-2 py-0.5 h-fit shrink-0 ${x.hl ? "bg-[#F08300]" : "bg-[#0A3059]"}`}>{x.k}</span>
                     <span className="text-[13px] text-gray-700 leading-relaxed">{x.v}</span>
                   </div>
                 ))}
