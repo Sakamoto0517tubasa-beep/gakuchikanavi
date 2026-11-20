@@ -15,11 +15,17 @@ const EXP_OPTIONS = [
   "アルバイト",
   "サークル・部活",
   "ゼミ・研究・勉強",
-  "趣味・個人的に続けていること",
-  "日常の習慣・生活の工夫",
-  "家族・友人のサポート",
+  "趣味・ハマっていること",
+  "ゲーム・推し活・SNS",
+  "毎日続けている習慣",
+  "節約・お金のやりくり",
+  "友達の相談役・人間関係",
+  "家族・家事の手伝い",
+  "苦手なことの克服",
+  "失敗・挫折からの立ち直り",
   "委員会・学校行事",
   "ボランティア・地域活動",
+  "一人旅・旅行",
 ];
 
 export default function DiscoverPage() {
@@ -83,7 +89,7 @@ export default function DiscoverPage() {
           </button>
           <h1 className="text-xl font-bold text-white leading-snug">今ある経験から<br />ガクチカを見つける</h1>
           <p className="text-blue-100 text-[13px] mt-2 leading-relaxed">
-            「これはガクチカじゃない」と思っている経験も、実は立派な強みかも。今やっていること・やってきたことを教えてください。
+            「こんなの大したことない」と思っている些細な経験こそ、実はあなただけのガクチカになります。毎日の習慣でも、ゲームでも、友達の相談役でも何でもOK。
           </p>
         </div>
       </div>
@@ -118,7 +124,7 @@ export default function DiscoverPage() {
         <textarea
           value={detail}
           onChange={(e) => setDetail(e.target.value)}
-          placeholder="例：3年間同じカフェでバイトしていて、新人教育を任されている。／毎日弁当を作って記録している。など、何気ないことでOK"
+          placeholder="例：毎朝5時に起きて筋トレしてる／友達の恋愛相談によく乗る／ゲームのギルドをまとめてた／3年間皆勤／節約して毎月1万円貯金してる など、どんな些細なことでもOK"
           rows={4}
           className="w-full border border-gray-200 rounded px-4 py-3 text-sm text-gray-700 focus:outline-none focus:border-[#0096DF] resize-none bg-white"
         />
