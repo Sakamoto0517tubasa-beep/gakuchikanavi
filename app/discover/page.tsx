@@ -3,12 +3,11 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-type Candidate = {
+type Prompt = {
+  category: string;
   title: string;
-  source: string;
-  hiddenStrength: string;
-  why: string;
-  howToTell: string;
+  question: string;
+  strength: string;
 };
 
 const EXP_OPTIONS = [
@@ -32,7 +31,7 @@ export default function DiscoverPage() {
   const router = useRouter();
   const [selected, setSelected] = useState<string[]>([]);
   const [detail, setDetail] = useState("");
-  const [result, setResult] = useState<{ intro: string; candidates: Candidate[] } | null>(null);
+  const [result, setResult] = useState<{ intro: string; prompts: Prompt[] } | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -56,7 +55,7 @@ export default function DiscoverPage() {
     })
       .then((r) => r.json())
       .then((d) => {
-        if (d.error || !d.candidates) throw new Error();
+        if (d.error || !d.prompts) throw new Error();
         setResult(d);
         setTimeout(() => window.scrollTo({ top: 9999, behavior: "smooth" }), 100);
       })
@@ -64,16 +63,16 @@ export default function DiscoverPage() {
       .finally(() => setLoading(false));
   }
 
-  function develop(c: Candidate) {
+  function develop(p: Prompt) {
     sessionStorage.setItem("selectedGakuchika", JSON.stringify({
-      title: c.title,
-      tagline: c.hiddenStrength,
-      reason: c.why,
-      howToStart: c.howToTell,
+      title: p.title,
+      tagline: p.strength,
+      reason: "",
+      howToStart: "",
       script: "",
       period: "",
     }));
-    sessionStorage.setItem("fromDiscover", JSON.stringify({ source: c.source }));
+    sessionStorage.setItem("fromDiscover", JSON.stringify({ source: p.category }));
     router.push("/build");
   }
 
@@ -155,35 +154,31 @@ export default function DiscoverPage() {
                 <p className="text-[15px] font-medium text-gray-900 leading-snug">{result.intro}</p>
               </div>
             )}
-            <div className="flex flex-col gap-4">
-              {result.candidates.map((c, i) => (
-                <div key={i} className="fade-in-up bg-white border border-gray-200 rounded overflow-hidden" style={{ animationDelay: `${0.08 * (i + 1)}s` }}>
-                  <div className="px-5 pt-4 pb-4">
-                    <div className="inline-flex items-center gap-1.5 text-[11px] text-[#0096DF] bg-[#EAF4FB] border border-[#9fd3ef] rounded-full px-2.5 py-0.5 mb-2">
-                      <svg width="11" height="11" viewBox="0 0 24 24" fill="#0096DF"><path d="M12 2l2.4 7.4H22l-6 4.3 2.3 7.3L12 16.8 5.7 21l2.3-7.3-6-4.3h7.6L12 2z" /></svg>
-                      {c.source} から発掘
+            <p className="text-[12px] text-gray-500 mb-3 px-1 leading-relaxed">
+              下の中で<span className="font-medium text-[#0A3059]">「あ、それならやってるかも」</span>と思うものを選んでください。その経験の中身はこの後あなた自身が教えてください（AIが勝手に作ったりしません）。
+            </p>
+            <div className="flex flex-col gap-2.5">
+              {result.prompts.map((p, i) => (
+                <button
+                  key={i}
+                  onClick={() => develop(p)}
+                  className="fade-in-up w-full text-left bg-white border border-gray-200 rounded px-4 py-3.5 active:bg-gray-50 hover:border-[#9fd3ef] transition-all"
+                  style={{ animationDelay: `${0.05 * (i + 1)}s` }}
+                >
+                  <div className="flex items-start gap-3">
+                    <div className="flex-1 min-w-0">
+                      <span className="inline-block text-[10px] text-[#0096DF] bg-[#EAF4FB] border border-[#9fd3ef] rounded-full px-2 py-0.5 mb-1.5">{p.category}</span>
+                      <p className="text-[14px] font-medium text-gray-900 leading-snug">{p.question}</p>
+                      <p className="text-[12px] text-[#0096DF] mt-1.5">→ 表れる強み：{p.strength}</p>
                     </div>
-                    <p className="text-base font-bold text-gray-900 leading-snug">{c.title}</p>
-                    <p className="text-[13px] text-[#0096DF] font-medium mt-1.5">強み：{c.hiddenStrength}</p>
-                    <div className="mt-3">
-                      <p className="text-[12px] font-medium text-gray-500 mb-1">なぜガクチカになるのか</p>
-                      <p className="text-sm text-gray-700 leading-relaxed">{c.why}</p>
-                    </div>
-                    <div className="mt-3">
-                      <p className="text-[12px] font-medium text-gray-500 mb-1">どう伝える・深掘るか</p>
-                      <p className="text-sm text-gray-700 leading-relaxed">{c.howToTell}</p>
-                    </div>
-                    <button
-                      onClick={() => develop(c)}
-                      className="mt-4 w-full bg-[#F08300] text-white text-[15px] font-medium py-3 rounded flex items-center justify-center gap-1.5 active:scale-[0.99] hover:bg-[#d97600] transition-all"
-                    >
-                      このガクチカを完成させる
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" /></svg>
-                    </button>
+                    <span className="shrink-0 self-center text-[12px] font-medium text-[#F08300] flex items-center gap-0.5">
+                      ある<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="#F08300" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                    </span>
                   </div>
-                </div>
+                </button>
               ))}
             </div>
+            <p className="text-[11px] text-gray-400 text-center mt-4">ピンとくるものが無ければ、上で経験を追加して「もう一度見つける」</p>
           </div>
         )}
       </div>
