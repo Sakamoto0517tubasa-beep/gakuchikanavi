@@ -288,7 +288,7 @@ export default function BuildPage() {
               <p className="text-[13px] text-gray-600 mb-3 leading-relaxed">
                 AIが1問ずつ質問します。答えるうちに、自分でも気づいていなかった<span className="font-medium text-[#0A3059]">動機やエピソード</span>が引き出され、ガクチカが一気に深まります。
               </p>
-              <button onClick={startDig} disabled={digLoading}
+              <button onClick={() => startDig()} disabled={digLoading}
                 className="inline-flex items-center justify-center gap-2 bg-[#0096DF] text-white text-sm font-medium px-6 py-2.5 rounded active:scale-95 transition-transform disabled:opacity-50">
                 {digLoading ? <><span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />準備中...</> : "壁打ちを始める"}
               </button>
