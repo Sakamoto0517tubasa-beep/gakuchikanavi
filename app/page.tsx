@@ -3,12 +3,6 @@
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
-const steps = [
-  { num: "1", title: "強みを診断", desc: "質問に答えてあなたの行動特性を分析" },
-  { num: "2", title: "志望を入力", desc: "気になる業界と職種を選ぶだけ" },
-  { num: "3", title: "AIが提案", desc: "理由・始め方・面接フレーム付きで3つ提案" },
-];
-
 const columns = [
   { tag: "コラム", tagColor: "#0096DF", date: "10/24", title: "ガクチカが思いつかない時の3つの視点" },
   { tag: "コラム", tagColor: "#0096DF", date: "10/18", title: "「アルバイト経験」を魅力的に伝える書き方" },
@@ -35,60 +29,43 @@ export default function Home() {
         </div>
       </header>
 
-      {/* 会員登録 / ログイン */}
-      <div className="bg-white px-4 py-3 border-b border-gray-200">
-        <div className="max-w-2xl mx-auto grid grid-cols-2 gap-3">
-          <button onClick={() => router.push("/start")} className="bg-[#F08300] text-white text-sm font-medium py-3 rounded flex items-center justify-center gap-1.5 hover:bg-[#d97600] transition-colors">
-            診断を始める<span className="text-[10px] bg-white/25 px-1.5 py-px rounded-sm">無料</span>
-          </button>
-          <button onClick={() => router.push("/mypage")} className="bg-white border border-[#0A3059] text-[#0A3059] text-sm font-medium py-3 rounded hover:bg-gray-50 transition-colors">
-            マイページ
-          </button>
-        </div>
-      </div>
-
-      {/* 診断について */}
+      {/* ガクチカの見つけ方（2つの同格モード） */}
       <div className="max-w-2xl mx-auto px-4 pt-4">
         <h2 className="text-[14px] text-[#0A3059] mb-2.5 flex items-center gap-2">
-          <span className="w-1 h-4 bg-[#0096DF]" />ガクチカ診断について
+          <span className="w-1 h-4 bg-[#0096DF]" />ガクチカの見つけ方を選ぶ
         </h2>
-        <div className="bg-white rounded border border-gray-200 px-4 py-4">
-          <p className="text-[13px] text-gray-600 leading-relaxed mb-4">
-            あなたの強み・志望業界・職種をもとに、選考で評価されるガクチカをAIが<span className="text-[#0096DF] font-medium">3つ</span>提案します。所要時間は約3分、登録も不要です。
-          </p>
-          <div className="flex flex-col gap-3">
-            {steps.map((s) => (
-              <div key={s.num} className="flex items-start gap-3">
-                <span className="w-6 h-6 shrink-0 rounded-full bg-[#0A3059] text-white text-xs flex items-center justify-center">{s.num}</span>
-                <div>
-                  <p className="text-sm text-gray-900 font-medium">{s.title}</p>
-                  <p className="text-[13px] text-gray-600 mt-0.5">{s.desc}</p>
+        <div className="flex flex-col gap-3">
+          {/* モードA：強み診断 */}
+          <button onClick={() => router.push("/start")} className="w-full text-left bg-white rounded-lg border border-gray-200 px-4 py-4 active:bg-gray-50 transition-colors">
+            <div className="flex items-start gap-3">
+              <span className="w-11 h-11 rounded-full bg-[#EAF4FB] flex items-center justify-center shrink-0">
+                <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="#0096DF" strokeWidth="1.8"><path d="M9 11l3 3 8-8M20 12v6a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h9" strokeLinecap="round" strokeLinejoin="round"/></svg>
+              </span>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <p className="text-[15px] font-medium text-gray-900">強み診断から見つける</p>
+                  <span className="text-[10px] font-medium text-white bg-[#F08300] px-1.5 py-px rounded-sm">無料</span>
                 </div>
+                <p className="text-[13px] text-gray-600 mt-1 leading-relaxed">質問に答えると、AIがあなたに合ったガクチカを<span className="text-[#0096DF] font-medium">10個</span>提案（約3分）</p>
+                <span className="mt-2 inline-flex items-center gap-1 text-[13px] font-medium text-[#0096DF]">診断を始める<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="#0096DF" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/></svg></span>
               </div>
-            ))}
-          </div>
+            </div>
+          </button>
+
+          {/* モードB：経験から発掘 */}
+          <button onClick={() => router.push("/discover")} className="w-full text-left bg-white rounded-lg border border-gray-200 px-4 py-4 active:bg-gray-50 transition-colors">
+            <div className="flex items-start gap-3">
+              <span className="w-11 h-11 rounded-full bg-[#FDEEE6] flex items-center justify-center shrink-0">
+                <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="#F08300" strokeWidth="1.8"><circle cx="11" cy="11" r="7" /><path d="M16.5 16.5L21 21" strokeLinecap="round" /><path d="M11 8v6M8 11h6" strokeLinecap="round" /></svg>
+              </span>
+              <div className="flex-1 min-w-0">
+                <p className="text-[15px] font-medium text-gray-900">今ある経験から見つける</p>
+                <p className="text-[13px] text-gray-600 mt-1 leading-relaxed">「ガクチカがない」人へ。日常の<span className="text-[#F08300] font-medium">些細な経験</span>に光を当てて発掘</p>
+                <span className="mt-2 inline-flex items-center gap-1 text-[13px] font-medium text-[#F08300]">経験から探す<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="#F08300" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/></svg></span>
+              </div>
+            </div>
+          </button>
         </div>
-      </div>
-
-      {/* 開始ボタン */}
-      <div className="max-w-2xl mx-auto px-4 pt-5">
-        <button onClick={() => router.push("/start")} className="w-full bg-[#F08300] text-white text-[15px] font-medium py-4 rounded hover:bg-[#d97600] transition-colors">
-          診断を始める（無料）
-        </button>
-      </div>
-
-      {/* 経験から発掘 */}
-      <div className="max-w-2xl mx-auto px-4 pt-4">
-        <button onClick={() => router.push("/discover")} className="w-full text-left bg-white rounded border border-gray-200 flex items-center gap-3 px-4 py-3.5 active:bg-gray-50 transition-colors">
-          <span className="w-10 h-10 rounded-full bg-[#FDEEE6] flex items-center justify-center shrink-0">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#F08300" strokeWidth="1.8"><circle cx="11" cy="11" r="7" /><path d="M16.5 16.5L21 21" strokeLinecap="round" /><path d="M11 8v6M8 11h6" strokeLinecap="round" /></svg>
-          </span>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-gray-800">今ある経験からガクチカを見つける</p>
-            <p className="text-[12px] text-gray-500 mt-0.5">「ガクチカがない」と思っている人へ。日常の経験に光を当てます</p>
-          </div>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="#c7cdd4" className="shrink-0"><path d="M9.29 6.71a1 1 0 000 1.41L13.17 12l-3.88 3.88a1 1 0 101.42 1.41l4.58-4.58a1 1 0 000-1.41L10.71 6.7a1 1 0 00-1.42.01z" /></svg>
-        </button>
       </div>
 
       {/* コラム・お知らせ */}
