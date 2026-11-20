@@ -15,9 +15,10 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Yu Gothic", "YuGothic", Meiryo, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  font-family: "Hiragino Kaku Gothic ProN", "Hiragino Sans", "BIZ UDPGothic", "Yu Gothic Medium", "YuGothic", "Yu Gothic UI", "Meiryo", system-ui, sans-serif;
+  font-feature-settings: "palt" 1;
+  letter-spacing: 0.02em;
+  line-height: 1.65;
   text-rendering: optimizeLegibility;
 }
 
