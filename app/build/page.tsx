@@ -56,6 +56,7 @@ export default function BuildPage() {
   const [digLoading, setDigLoading] = useState(false);
   const [digStarted, setDigStarted] = useState(false);
   const [digDone, setDigDone] = useState(false);
+  const [fromDiscover, setFromDiscover] = useState(false);
 
   useEffect(() => {
     const raw = sessionStorage.getItem("selectedGakuchika");
@@ -63,7 +64,15 @@ export default function BuildPage() {
       router.replace("/result");
       return;
     }
-    setGakuchika(JSON.parse(raw));
+    const parsed = JSON.parse(raw) as Suggestion;
+    setGakuchika(parsed);
+    // 発掘から来た場合は、まず「なぜ？」のヒアリング（壁打ち）を自動で始める
+    if (sessionStorage.getItem("fromDiscover")) {
+      sessionStorage.removeItem("fromDiscover");
+      setFromDiscover(true);
+      startDig(parsed);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router]);
 
   function generate() {
@@ -173,13 +182,13 @@ export default function BuildPage() {
       .finally(() => setRefining(false));
   }
 
-  function fetchDig(history: { q: string; a: string }[]) {
+  function fetchDig(history: { q: string; a: string }[], gk: Suggestion | null = gakuchika) {
     setDigLoading(true);
     setError("");
     return fetch("/api/dig", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ gakuchika, history }),
+      body: JSON.stringify({ gakuchika: gk, history }),
     })
       .then((r) => r.json())
       .then((d) => {
@@ -191,11 +200,11 @@ export default function BuildPage() {
       .finally(() => setDigLoading(false));
   }
 
-  function startDig() {
+  function startDig(gk: Suggestion | null = gakuchika) {
     setDigStarted(true);
     setDigHistory([]);
     setDigDone(false);
-    fetchDig([]);
+    fetchDig([], gk);
   }
 
   function submitDig() {
@@ -232,6 +241,14 @@ export default function BuildPage() {
       </div>
 
       <div className="max-w-2xl mx-auto px-4 py-6">
+        {fromDiscover && (
+          <div className="fade-in-up bg-[#EAF4FB] border border-[#9fd3ef] rounded px-4 py-3 mb-5 flex items-start gap-2.5">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0096DF" strokeWidth="1.8" className="shrink-0 mt-0.5"><path d="M12 2a7 7 0 00-4 12.7V17h8v-2.3A7 7 0 0012 2z" strokeLinejoin="round" /><path d="M9 21h6M10 17v4M14 17v4" strokeLinecap="round" /></svg>
+            <p className="text-[13px] text-[#0A3059] leading-relaxed">
+              見つけた経験を本物のガクチカにするために、まず<span className="font-medium">「なぜそれに取り組んだ(続けている)のか」</span>をAIと一緒に深掘りしましょう。
+            </p>
+          </div>
+        )}
         {/* なぜ取り組むのか（動機・原体験）= 最重要 */}
         <div className="flex items-center gap-2 mb-3 px-1">
           <span className="w-1 h-4 bg-[#F08300]" />

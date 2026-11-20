@@ -73,6 +73,7 @@ export default function DiscoverPage() {
       script: "",
       period: "",
     }));
+    sessionStorage.setItem("fromDiscover", JSON.stringify({ source: c.source }));
     router.push("/build");
   }
 
