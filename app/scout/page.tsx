@@ -2,27 +2,11 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { companies } from "@/lib/companies";
-import CompanyLogo from "@/components/CompanyLogo";
 import { getDiagnosis, getScoutInterests, toggleScoutInterest, type SavedDiagnosis } from "@/lib/storage";
 
-// 志望業界 → 企業カテゴリ
-const INDUSTRY_TO_CAT: Record<string, string> = {
-  "IT・通信": "IT",
-  "金融・保険": "金融",
-  "コンサルティング": "コンサル",
-  "メーカー（製造業）": "メーカー",
-  "商社": "商社",
-  "広告・マーケティング": "広告・メディア",
-  "医療・福祉": "その他",
-  "教育": "その他",
-  "小売・流通": "流通・小売",
-  "建設・不動産": "インフラ",
-  "エンタメ・メディア": "広告・メディア",
-  "公務員・非営利": "その他",
-};
-
 const DATES = ["1日前", "2日前", "4日前", "1週間前", "2週間前"];
+// 匿名化した企業名（実在企業名は表示しない）
+const ANON = ["A社", "B社", "C社", "D社", "E社"];
 
 export default function ScoutPage() {
   const [diag, setDiag] = useState<SavedDiagnosis | null>(null);
@@ -40,8 +24,8 @@ export default function ScoutPage() {
     setInterested(getScoutInterests().map((s) => s.company));
   }
 
-  const cat = diag ? INDUSTRY_TO_CAT[diag.industry] ?? "その他" : "";
-  const matched = diag ? companies.filter((c) => c.category === cat).slice(0, 5) : [];
+  // 実在企業は使わず、匿名企業からのオファーとして表示する
+  const matched = diag ? ANON.map((name) => ({ name })) : [];
   const unreadCount = Math.min(2, matched.length);
 
   return (
@@ -87,12 +71,14 @@ export default function ScoutPage() {
               const unread = i < unreadCount;
               return (
                 <div key={c.name + i} className="px-4 py-3.5 flex items-start gap-3">
-                  <CompanyLogo name={c.name} category={c.category} size={42} />
+                  <div className="w-[42px] h-[42px] rounded-full bg-[#EAF4FB] flex items-center justify-center shrink-0">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0096DF" strokeWidth="1.6"><path d="M3 21h18M5 21V5a1 1 0 011-1h7a1 1 0 011 1v16M14 21V9h4a1 1 0 011 1v11" strokeLinejoin="round" /><path d="M8 7h2M8 11h2M8 15h2" strokeLinecap="round" /></svg>
+                  </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between gap-2">
                       <div className="flex items-center gap-1.5 min-w-0">
                         {unread && <span className="w-1.5 h-1.5 rounded-full bg-[#F08300] shrink-0" />}
-                        <p className="text-[13px] text-gray-500 truncate">{c.name}</p>
+                        <p className="text-[13px] text-gray-500 truncate">{diag.industry}の企業（{c.name}）</p>
                       </div>
                       <div className="flex items-center gap-1.5 shrink-0">
                         <span className="text-[11px] text-gray-400">{DATES[i]}</span>
