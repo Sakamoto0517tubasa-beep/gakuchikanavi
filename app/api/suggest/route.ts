@@ -156,68 +156,42 @@ ${answerSummary}
 - scriptはSTAR（状況・課題・行動・結果）が伝わる面接用の骨子にし、数字を1つ入れる。
 - 「誰にでも当てはまる」案を避け、具体的な課題・行動・数字がイメージできる固有の内容にする。`;
 
-    const jsonSpec = (withProfile: boolean, startRank: number, count: number) => `以下のJSON形式のみで回答（前後に余分なテキストや\`\`\`は不要）:
+    // 高速化のため出力を簡潔にし、生成トークン数を抑える
+    const prompt = `${baseContext}
+
+【出力：ガクチカを10個提案】
+rank 1〜3 はこの人に特に向く「イチオシ」順、4〜10 は別角度で多様に（カテゴリ・切り口を重複させない）。各項目は簡潔に、字数上限を必ず守ること。
+
+以下のJSON形式のみで回答（前後に余分なテキストや\`\`\`は不要）:
 {
-${withProfile ? '  "strengthProfile": "この人の強みタイプを一言で（40字以内・例：周囲を巻き込んで前進させる推進力タイプ）",\n' : ''}  "suggestions": [
+  "strengthProfile": "この人の強みタイプを一言で（40字以内・例：周囲を巻き込んで前進させる推進力タイプ）",
+  "suggestions": [
     {
-      "rank": ${startRank},
-      "title": "ガクチカのタイトル（学生活動として・25字以内）",
-      "tagline": "このガクチカの核心を一言で（35字以内）",
-      "reason": "なぜこの人に向くか。診断回答の具体的な強みに触れて（110字以内）",
-      "howToStart": "今日〜今週に踏み出せる超具体的な第一歩（110字以内）",
-      "script": "面接でそのまま使えるSTAR形式の骨子。数字を1つ入れる（100字以内）",
+      "rank": 1,
+      "title": "タイトル（学生活動として・22字以内）",
+      "tagline": "核心を一言で（30字以内）",
+      "reason": "なぜ向くか。診断回答の具体的な強みに触れて（70字以内）",
+      "howToStart": "今日〜今週の超具体的な第一歩（70字以内）",
+      "script": "面接用STAR骨子。数字を1つ入れる（70字以内）",
       "period": "推奨活動期間"
     }
-    // ↑ rank ${startRank}〜${startRank + count - 1} まで、合計${count}個を配列に入れる
+    // ↑ rank 1〜10 まで、合計10個を配列に入れる
   ]
 }`;
 
-    // 高速化のため、5個ずつ2本を並列生成して合算する
-    const promptA = `${baseContext}
+    const completion = await groq.chat.completions.create({
+      model: "qwen/qwen3.8-27b",
+      messages: [{ role: "user", content: prompt }],
+      temperature: 0.8,
+      max_tokens: 4000,
+    });
 
-【今回の出力：この人に特に向く「イチオシ」のガクチカを5個】
-rank 1 が最有力になるよう、向く順に並べる。カテゴリはできるだけ多様に。
-${jsonSpec(true, 1, 5)}`;
+    const text = completion.choices[0]?.message?.content ?? "";
+    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) throw new Error("JSON not found in response");
 
-    const promptB = `${baseContext}
-
-【今回の出力：さらに別角度のガクチカを5個】
-定番・王道（アルバイトやサークルばかり）に偏らず、意外性のある多様な切り口で5個。上とは種類・テーマを変えること。
-${jsonSpec(false, 6, 5)}`;
-
-    const runOne = async (prompt: string, maxTokens: number) => {
-      const c = await groq.chat.completions.create({
-        model: "qwen/qwen3.8-27b",
-        messages: [{ role: "user", content: prompt }],
-        temperature: 0.8,
-        max_tokens: maxTokens,
-      });
-      const text = c.choices[0]?.message?.content ?? "";
-      const m = text.match(/\{[\s\S]*\}/);
-      if (!m) throw new Error("JSON not found");
-      return JSON.parse(m[0]) as { strengthProfile?: string; suggestions?: unknown[] };
-    };
-
-    const [resA, resB] = await Promise.allSettled([
-      runOne(promptA, 3200),
-      runOne(promptB, 3200),
-    ]);
-
-    let strengthProfile = "";
-    let suggestions: Record<string, unknown>[] = [];
-    if (resA.status === "fulfilled") {
-      strengthProfile = resA.value.strengthProfile || "";
-      suggestions.push(...((resA.value.suggestions as Record<string, unknown>[]) || []));
-    }
-    if (resB.status === "fulfilled") {
-      suggestions.push(...((resB.value.suggestions as Record<string, unknown>[]) || []));
-    }
-    if (suggestions.length === 0) throw new Error("both generations failed");
-
-    // rankを1から振り直す
-    suggestions = suggestions.slice(0, 10).map((s, i) => ({ ...s, rank: i + 1 }));
-
-    return NextResponse.json({ strengthProfile, suggestions });
+    const parsed = JSON.parse(jsonMatch[0]);
+    return NextResponse.json(parsed);
   } catch (e) {
     console.error(e);
     return NextResponse.json({ error: "提案の生成に失敗しました" }, { status: 500 });
