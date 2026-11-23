@@ -2,16 +2,25 @@
 
 import { useEffect, useState } from "react";
 import { examples, exampleCategories } from "@/lib/examples";
-import { getPosts, deletePost, formatDate, type UserPost } from "@/lib/storage";
+import { getPosts, addPost, deletePost, getDiagnosis, formatDate, type UserPost } from "@/lib/storage";
 
 const CAT_COLOR: Record<string, string> = {
   "アルバイト": "#EA6C00", "サークル": "#0096DF", "ゼミ・研究": "#2E7D32",
   "長期インターン": "#5E35B1", "ボランティア": "#C2185B", "個人活動": "#00838F", "資格・勉強": "#8A6D3B",
 };
 
+// 投稿時に選べるカテゴリー（「すべて」を除く）
+const POST_CATEGORIES = exampleCategories.filter((c) => c !== "すべて");
+
 export default function ExamplesPage() {
   const [cat, setCat] = useState("すべて");
   const [posts, setPosts] = useState<UserPost[]>([]);
+
+  // 投稿フォーム
+  const [composing, setComposing] = useState(false);
+  const [fTitle, setFTitle] = useState("");
+  const [fBody, setFBody] = useState("");
+  const [fCat, setFCat] = useState(POST_CATEGORIES[0]);
 
   useEffect(() => { setPosts(getPosts()); }, []);
 
@@ -20,6 +29,32 @@ export default function ExamplesPage() {
     setPosts(getPosts());
   }
 
+  function openCompose() {
+    // カテゴリー絞り込み中なら、そのカテゴリーを初期選択
+    setFCat(cat !== "すべて" && POST_CATEGORIES.includes(cat) ? cat : POST_CATEGORIES[0]);
+    setFTitle("");
+    setFBody("");
+    setComposing(true);
+  }
+
+  function submitPost() {
+    if (!fTitle.trim() || !fBody.trim()) return;
+    const diag = getDiagnosis();
+    addPost({
+      id: (typeof crypto !== "undefined" && crypto.randomUUID) ? crypto.randomUUID() : String(Date.now()),
+      date: new Date().toISOString(),
+      grade: diag?.grade || "",
+      industry: diag?.industry || "",
+      jobType: diag?.jobType || "",
+      category: fCat,
+      title: fTitle.trim(),
+      body: fBody.trim(),
+    });
+    setPosts(getPosts());
+    setComposing(false);
+  }
+
+  const canPost = fTitle.trim().length > 0 && fBody.trim().length > 0;
   const list = examples.filter((e) => cat === "すべて" || e.category === cat);
   const showPosts = cat === "すべて" ? posts : posts.filter((p) => p.category === cat);
 
@@ -34,7 +69,16 @@ export default function ExamplesPage() {
 
       <div className="bg-white border-b border-gray-200">
         <div className="max-w-2xl mx-auto px-4 pt-3.5 pb-3">
-          <h1 className="text-[16px] font-medium text-[#0A3059] mb-1">みんなのガクチカ</h1>
+          <div className="flex items-center justify-between mb-1">
+            <h1 className="text-[16px] font-medium text-[#0A3059]">みんなのガクチカ</h1>
+            <button
+              onClick={openCompose}
+              className="shrink-0 inline-flex items-center gap-1 text-[13px] font-medium text-white bg-[#F08300] px-3 py-1.5 rounded active:scale-95 hover:bg-[#d97600] transition-all"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="#fff" strokeWidth="2.4" strokeLinecap="round" /></svg>
+              投稿する
+            </button>
+          </div>
           <p className="text-[13px] text-gray-500 mb-3">先輩たちの実際のガクチカを参考にしよう</p>
           <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
             {exampleCategories.map((c) => (
@@ -56,13 +100,16 @@ export default function ExamplesPage() {
               </span>
               <div className="flex-1 min-w-0">
                 <p className="text-[13px] text-gray-800">あなたの投稿{p.grade ? `・${p.grade}` : ""}</p>
-                <p className="text-[11px] text-gray-400">志望：{p.industry}／{p.jobType}・{formatDate(p.date)}</p>
+                <p className="text-[11px] text-gray-400">{p.industry || p.jobType ? `志望：${p.industry}／${p.jobType}・` : ""}{formatDate(p.date)}</p>
               </div>
-              <span className="text-[10px] text-white px-1.5 py-0.5 rounded-sm shrink-0 bg-[#0096DF]">自分</span>
+              {p.category && (
+                <span className="text-[10px] text-white px-1.5 py-0.5 rounded-sm shrink-0" style={{ backgroundColor: CAT_COLOR[p.category] ?? "#607D8B" }}>{p.category}</span>
+              )}
             </div>
             <p className="text-[15px] font-medium text-gray-900 mb-1.5">{p.title}</p>
             <p className="text-[13px] text-gray-600 leading-relaxed whitespace-pre-wrap">{p.body}</p>
-            <div className="flex justify-end mt-3 pt-3 border-t border-gray-100">
+            <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-100">
+              <span className="text-[10px] text-white px-1.5 py-0.5 rounded-sm bg-[#0096DF]">自分</span>
               <button onClick={() => removePost(p.id)} className="text-xs text-gray-400 hover:text-red-500 transition-colors">投稿を削除</button>
             </div>
           </article>
@@ -94,6 +141,64 @@ export default function ExamplesPage() {
         ))}
         <p className="text-[11px] text-gray-400 text-center mt-4">ガクチカナビ v1.0</p>
       </div>
+
+      {/* 投稿フォーム（モーダル） */}
+      {composing && (
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40" onClick={() => setComposing(false)}>
+          <div className="bg-white w-full sm:max-w-lg sm:rounded-lg rounded-t-2xl max-h-[90vh] overflow-y-auto" onClick={(ev) => ev.stopPropagation()}>
+            <div className="sticky top-0 bg-white border-b border-gray-100 px-4 py-3 flex items-center justify-between">
+              <h2 className="text-[15px] font-medium text-[#0A3059]">自分のガクチカを投稿</h2>
+              <button onClick={() => setComposing(false)} className="text-gray-400 hover:text-gray-600">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 6l12 12M18 6L6 18" strokeLinecap="round" /></svg>
+              </button>
+            </div>
+            <div className="px-4 py-4">
+              {/* カテゴリー */}
+              <label className="block text-[13px] font-medium text-[#0A3059] mb-2">カテゴリー</label>
+              <div className="flex flex-wrap gap-2 mb-4">
+                {POST_CATEGORIES.map((c) => (
+                  <button key={c} onClick={() => setFCat(c)}
+                    className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${fCat === c ? "text-white border-transparent" : "bg-white text-gray-600 border-gray-300"}`}
+                    style={fCat === c ? { backgroundColor: CAT_COLOR[c] ?? "#0A3059" } : undefined}>
+                    {c}
+                  </button>
+                ))}
+              </div>
+
+              {/* タイトル */}
+              <label className="block text-[13px] font-medium text-[#0A3059] mb-1.5">タイトル</label>
+              <input
+                value={fTitle}
+                onChange={(ev) => setFTitle(ev.target.value)}
+                maxLength={40}
+                placeholder="例：カフェバイトで客単価を1.2倍にした"
+                className="w-full border border-gray-300 rounded px-3 py-2.5 text-sm text-gray-800 focus:outline-none focus:border-[#0096DF] mb-4"
+              />
+
+              {/* 本文 */}
+              <label className="block text-[13px] font-medium text-[#0A3059] mb-1.5">本文</label>
+              <textarea
+                value={fBody}
+                onChange={(ev) => setFBody(ev.target.value)}
+                rows={7}
+                maxLength={600}
+                placeholder="状況・課題・自分がやったこと・結果を書いてみましょう。&#10;例：アルバイト先のカフェで客単価が伸び悩んでいた課題に対し…"
+                className="w-full border border-gray-300 rounded px-3 py-2.5 text-sm text-gray-800 leading-relaxed focus:outline-none focus:border-[#0096DF] resize-none"
+              />
+              <p className="text-[11px] text-gray-400 text-right mt-1">{fBody.length} / 600</p>
+
+              <button
+                onClick={submitPost}
+                disabled={!canPost}
+                className="mt-3 w-full bg-[#F08300] text-white text-[15px] font-medium py-3 rounded active:scale-[0.99] hover:bg-[#d97600] transition-all disabled:opacity-50"
+              >
+                投稿する
+              </button>
+              <p className="text-[11px] text-gray-400 text-center mt-2">投稿はこの端末内に保存されます（公開されません）</p>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }
