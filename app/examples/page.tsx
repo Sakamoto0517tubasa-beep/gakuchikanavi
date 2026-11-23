@@ -5,7 +5,8 @@ import { examples, exampleCategories } from "@/lib/examples";
 import { getDiagnosis, formatDate } from "@/lib/storage";
 import {
   isSupabaseEnabled, fetchPublicPosts, addPublicPost, deletePublicPost,
-  getMyPublicPostIds, addMyPublicPostId, removeMyPublicPostId, type PublicPost,
+  getMyPublicPostIds, addMyPublicPostId, removeMyPublicPostId,
+  changePostLikes, getLikedPostIds, setLikedPostIds, type PublicPost,
 } from "@/lib/supabase";
 
 const CAT_COLOR: Record<string, string> = {
@@ -22,6 +23,7 @@ export default function ExamplesPage() {
   const [cat, setCat] = useState("すべて");
   const [posts, setPosts] = useState<PublicPost[]>([]);
   const [myIds, setMyIds] = useState<string[]>([]);
+  const [likedIds, setLikedIds] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
 
   // 投稿フォーム
@@ -36,8 +38,30 @@ export default function ExamplesPage() {
 
   useEffect(() => {
     setMyIds(getMyPublicPostIds());
+    setLikedIds(getLikedPostIds());
     reload();
   }, []);
+
+  // いいねのオン/オフ（1端末1いいね）
+  async function toggleLike(id: string) {
+    const liked = likedIds.includes(id);
+    const delta = liked ? -1 : 1;
+    // 楽観的にUIを更新
+    const nextLiked = liked ? likedIds.filter((x) => x !== id) : [id, ...likedIds];
+    setLikedIds(nextLiked);
+    setLikedPostIds(nextLiked);
+    setPosts((prev) => prev.map((p) => (p.id === id ? { ...p, likes: Math.max(0, (p.likes ?? 0) + delta) } : p)));
+    const newCount = await changePostLikes(id, delta);
+    if (newCount === null) {
+      // 失敗したら元に戻す
+      const revert = liked ? [id, ...nextLiked] : nextLiked.filter((x) => x !== id);
+      setLikedIds(revert);
+      setLikedPostIds(revert);
+      reload();
+      return;
+    }
+    setPosts((prev) => prev.map((p) => (p.id === id ? { ...p, likes: newCount } : p)));
+  }
 
   async function removePost(id: string) {
     const ok = await deletePublicPost(id);
@@ -135,12 +159,25 @@ export default function ExamplesPage() {
               </div>
               <p className="text-[15px] font-medium text-gray-900 mb-1.5">{p.title}</p>
               <p className="text-[13px] text-gray-600 leading-relaxed whitespace-pre-wrap">{p.body}</p>
-              {mine && (
-                <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-100">
-                  <span className="text-[10px] text-white px-1.5 py-0.5 rounded-sm bg-[#0096DF]">自分</span>
-                  <button onClick={() => removePost(p.id)} className="text-xs text-gray-400 hover:text-red-500 transition-colors">投稿を削除</button>
-                </div>
-              )}
+              <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-100">
+                <button
+                  onClick={() => toggleLike(p.id)}
+                  className={`inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full border transition-all active:scale-95 ${
+                    likedIds.includes(p.id)
+                      ? "bg-[#FDEEE6] border-[#EA6C00] text-[#EA6C00]"
+                      : "bg-white border-gray-300 text-gray-500 hover:border-[#EA6C00]"
+                  }`}
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill={likedIds.includes(p.id) ? "#EA6C00" : "none"} stroke="#EA6C00" strokeWidth="1.8"><path d="M20.8 4.6a5.5 5.5 0 00-7.8 0L12 5.6l-1-1a5.5 5.5 0 00-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 000-7.8z" strokeLinejoin="round" /></svg>
+                  参考になった {p.likes ?? 0}
+                </button>
+                {mine && (
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] text-white px-1.5 py-0.5 rounded-sm bg-[#0096DF]">自分</span>
+                    <button onClick={() => removePost(p.id)} className="text-xs text-gray-400 hover:text-red-500 transition-colors">削除</button>
+                  </div>
+                )}
+              </div>
             </article>
           );
         })}

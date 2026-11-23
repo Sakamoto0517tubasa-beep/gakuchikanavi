@@ -20,6 +20,7 @@ export type PublicPost = {
   category: string;
   title: string;
   body: string;
+  likes: number;
 };
 
 // 公開投稿を新しい順に取得
@@ -75,6 +76,33 @@ export async function deletePublicPost(id: string): Promise<boolean> {
     return false;
   }
   return true;
+}
+
+// いいね数を増減し、更新後の件数を返す（delta: +1 でいいね、-1 で取り消し）
+export async function changePostLikes(id: string, delta: number): Promise<number | null> {
+  if (!supabase) return null;
+  const { data, error } = await supabase.rpc("change_post_likes", { p_id: id, delta });
+  if (error) {
+    console.error("changePostLikes", error);
+    return null;
+  }
+  return typeof data === "number" ? data : null;
+}
+
+// いいね済みの投稿IDを端末に記録（1端末1いいねの制御）
+const LIKED_KEY = "gn_liked_posts";
+export function getLikedPostIds(): string[] {
+  try {
+    const r = localStorage.getItem(LIKED_KEY);
+    return r ? JSON.parse(r) : [];
+  } catch {
+    return [];
+  }
+}
+export function setLikedPostIds(ids: string[]) {
+  try {
+    localStorage.setItem(LIKED_KEY, JSON.stringify(ids));
+  } catch {}
 }
 
 // 自分が投稿したIDを端末に記録（他人の投稿に削除ボタンを出さないため）
