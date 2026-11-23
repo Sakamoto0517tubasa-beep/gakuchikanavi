@@ -104,17 +104,15 @@ ${industryUndecided ? "志望業界：まだ決めていない" : `志望業界�
         }));
     const answerSummary = answerList.map((x) => `・${x.q}: ${x.a}`).join("\n");
 
-    const prompt = `あなたは新卒就活のトップコーチです。数千人のESを添削し、内定を勝ち取らせてきました。以下の大学生のプロフィールと診断結果を深く分析し、その人だけに刺さるガクチカ（学生時代に力を入れたこと）を提案してください。
+    // 共通のコンテキスト（分析方針・プロフィール・診断回答・ルール）
+    const baseContext = `あなたは新卒就活のトップコーチです。以下の大学生のプロフィールと診断結果を深く分析し、その人だけに刺さるガクチカ（学生時代に力を入れたこと）を提案してください。
 
-【ステップ1：強みの構造分析】
-まず診断回答を1つずつ結びつけ、この人の「①強み（得意な動き）②価値観（何を大切にするか）③原動力（何に心が動くか）④行動のクセ」を内部で立体的に分析してください。単一の回答で決めつけず、複数の回答を統合して一貫する核を捉えます。その核を一言に凝縮して strengthProfile に入れます（例：「周囲を巻き込んで前進させる推進力タイプ」「地道な改善を積み重ねる職人タイプ」）。表面的なラベルでなく、この人固有の洞察にすること。
-
-【ステップ2：ガクチカを10個提案】
-ガクチカは、大学生が学生生活で主体的に取り組む課外活動です。合計10個提案してください（最初の3つはこの人に特に向く「イチオシ」順で並べる）。
+【強みの構造分析】
+診断回答を1つずつ結びつけ、この人の「①強み（得意な動き）②価値観（何を大切にするか）③原動力（何に心が動くか）④行動のクセ」を内部で立体的に分析してください。単一の回答で決めつけず、複数の回答を統合して一貫する核を捉えます。
 
 ${typeInstruction}
 
-種類の指定がない場合は、以下の幅広いカテゴリを横断して、できるだけ多様な種類で提案してください。似た切り口を重ねず、カテゴリをなるべくばらけさせること。
+種類の指定がない場合は、以下の幅広いカテゴリを横断して、できるだけ多様な種類で提案してください。似た切り口を重ねず、カテゴリをばらけさせること。
 
 【カテゴリの幅（この中から多様に）】
 - アルバイト（居酒屋・塾講師・カフェ・アパレル販売 など）での工夫や改善
@@ -136,8 +134,7 @@ ${typeInstruction}
 
 【禁止事項（重要）】
 - 「既存店の売上向上プロジェクト」「業務フロー構築」のような"社会人の仕事・企業の業務"は絶対に提案しない。あくまで一人の大学生が放課後や休日にできる活動。
-- 「コミュニケーション能力」「リーダーシップ」「協調性」のような誰でも言える抽象ワードを結論にしない。必ず具体的な行動と結果で語る。
-- 10案が似通わないようにし、種類・切り口を多様にばらけさせる。
+- 「コミュニケーション能力」「リーダーシップ」のような誰でも言える抽象ワードを結論にしない。必ず具体的な行動と結果で語る。
 
 【良い例 / 悪い例】
 × 悪い例：「サークルでリーダーをしてコミュ力を発揮した」（抽象的で誰でも言える）
@@ -147,55 +144,80 @@ ${gradeInstruction}
 
 【学生プロフィール】
 ${targetInstruction}
-${currentGakuchika ? `現在のガクチカ: ${currentGakuchika}（これを深掘り・発展させる案も1つ含める）` : ""}
+${currentGakuchika ? `現在のガクチカ: ${currentGakuchika}（これを深掘り・発展させる案も含める）` : ""}
 
 【診断回答（この人の強み・性格）】
 ${answerSummary}
 
-【提案のルール】
-- 各案は、診断回答から読み取れる「この人固有の強み」が主役になるように設計する。reasonで必ずどの回答に基づくか具体的に触れる。
-- 志望業界・職種が決まっている場合は、その選考で評価されるポイント（例：営業なら相手に合わせた提案力と行動量、エンジニアなら課題を技術で解決する姿勢、企画なら0→1の構想力など）に接続させる。未定の場合は特定の進路に寄せず、どこでも通用する強みと、興味・適性を見つけるきっかけになる点を軸にする。ただし活動自体は学生がやること。
-- howToStartは、今日〜今週に大学生が実際に踏み出せる超具体的な第一歩（声をかける相手・使うサービス名・最初の1アクション）を書く。
-- scriptはSTAR（状況・課題・行動・結果）が伝わる、面接でそのまま使える話し方の骨子にする。数字を1つ入れる。
+【各案のルール】
+- 各案は、診断回答から読み取れる「この人固有の強み」が主役になるよう設計し、reasonでどの回答に基づくか具体的に触れる。
+- 志望業界・職種が決まっている場合は、その選考で評価されるポイントに接続させる。未定ならどこでも通用する強みと、興味・適性を見つけるきっかけになる点を軸にする。
+- howToStartは、今日〜今週に実際に踏み出せる超具体的な第一歩（相手・サービス名・最初のアクション）を書く。
+- scriptはSTAR（状況・課題・行動・結果）が伝わる面接用の骨子にし、数字を1つ入れる。
+- 「誰にでも当てはまる」案を避け、具体的な課題・行動・数字がイメージできる固有の内容にする。`;
 
-【ステップ3：出力前の自己添削（必ず実行）】
-3案を出力する前に、各案を次のチェックで見直し、1つでも当てはまれば具体的で固有な内容に書き直してから出力すること：
-(1) 「誰にでも当てはまる」案になっていないか → この人の診断回答の具体に紐づくか再確認する
-(2) reasonが「あなたは◯◯だから」と抽象的に流れていないか → どの回答のどの選択に基づくかを具体的に示す
-(3) 具体的な課題・行動・数字がイメージできるか → 曖昧なら具体化する
-(4) 10案が多様なカテゴリにばらけ、切り口が重複していないか
-チェックを通過した最終版のみをJSONで出力する。suggestionsには必ず10個入れること。
-
-以下のJSON形式のみで回答してください（前後に余分なテキストや\`\`\`は不要）:
+    const jsonSpec = (withProfile: boolean, startRank: number, count: number) => `以下のJSON形式のみで回答（前後に余分なテキストや\`\`\`は不要）:
 {
-  "strengthProfile": "この人の強みタイプを一言で（40字以内）",
-  "suggestions": [
+${withProfile ? '  "strengthProfile": "この人の強みタイプを一言で（40字以内・例：周囲を巻き込んで前進させる推進力タイプ）",\n' : ''}  "suggestions": [
     {
-      "rank": 1,
+      "rank": ${startRank},
       "title": "ガクチカのタイトル（学生活動として・25字以内）",
       "tagline": "このガクチカの核心を一言で（35字以内）",
-      "reason": "なぜこの人にこの活動が向いているか。診断回答の具体的な強みに触れて説明（110字以内）",
-      "howToStart": "今日〜今週に踏み出せる超具体的な第一歩。相手・サービス名・最初のアクションを明記（110字以内）",
-      "script": "面接でそのまま使えるSTAR形式の話し方の骨子。数字を1つ入れる（100字以内）",
+      "reason": "なぜこの人に向くか。診断回答の具体的な強みに触れて（110字以内）",
+      "howToStart": "今日〜今週に踏み出せる超具体的な第一歩（110字以内）",
+      "script": "面接でそのまま使えるSTAR形式の骨子。数字を1つ入れる（100字以内）",
       "period": "推奨活動期間"
     }
-    // ↑ この形式のオブジェクトを rank 1〜10 まで、合計10個を配列に入れる
+    // ↑ rank ${startRank}〜${startRank + count - 1} まで、合計${count}個を配列に入れる
   ]
 }`;
 
-    const completion = await groq.chat.completions.create({
-      model: "qwen/qwen3.8-27b",
-      messages: [{ role: "user", content: prompt }],
-      temperature: 0.8,
-      max_tokens: 6000,
-    });
+    // 高速化のため、5個ずつ2本を並列生成して合算する
+    const promptA = `${baseContext}
 
-    const text = completion.choices[0]?.message?.content ?? "";
-    const jsonMatch = text.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) throw new Error("JSON not found in response");
+【今回の出力：この人に特に向く「イチオシ」のガクチカを5個】
+rank 1 が最有力になるよう、向く順に並べる。カテゴリはできるだけ多様に。
+${jsonSpec(true, 1, 5)}`;
 
-    const parsed = JSON.parse(jsonMatch[0]);
-    return NextResponse.json(parsed);
+    const promptB = `${baseContext}
+
+【今回の出力：さらに別角度のガクチカを5個】
+定番・王道（アルバイトやサークルばかり）に偏らず、意外性のある多様な切り口で5個。上とは種類・テーマを変えること。
+${jsonSpec(false, 6, 5)}`;
+
+    const runOne = async (prompt: string, maxTokens: number) => {
+      const c = await groq.chat.completions.create({
+        model: "qwen/qwen3.8-27b",
+        messages: [{ role: "user", content: prompt }],
+        temperature: 0.8,
+        max_tokens: maxTokens,
+      });
+      const text = c.choices[0]?.message?.content ?? "";
+      const m = text.match(/\{[\s\S]*\}/);
+      if (!m) throw new Error("JSON not found");
+      return JSON.parse(m[0]) as { strengthProfile?: string; suggestions?: unknown[] };
+    };
+
+    const [resA, resB] = await Promise.allSettled([
+      runOne(promptA, 3200),
+      runOne(promptB, 3200),
+    ]);
+
+    let strengthProfile = "";
+    let suggestions: Record<string, unknown>[] = [];
+    if (resA.status === "fulfilled") {
+      strengthProfile = resA.value.strengthProfile || "";
+      suggestions.push(...((resA.value.suggestions as Record<string, unknown>[]) || []));
+    }
+    if (resB.status === "fulfilled") {
+      suggestions.push(...((resB.value.suggestions as Record<string, unknown>[]) || []));
+    }
+    if (suggestions.length === 0) throw new Error("both generations failed");
+
+    // rankを1から振り直す
+    suggestions = suggestions.slice(0, 10).map((s, i) => ({ ...s, rank: i + 1 }));
+
+    return NextResponse.json({ strengthProfile, suggestions });
   } catch (e) {
     console.error(e);
     return NextResponse.json({ error: "提案の生成に失敗しました" }, { status: 500 });
