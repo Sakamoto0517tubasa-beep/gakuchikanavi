@@ -5,8 +5,8 @@ export type Question = {
   options: { label: string; value: string }[];
 };
 
-// ===== 全学年共通：20問。強み・価値観・原動力を多面的に診断する =====
-export const questions: Question[] = [
+// ===== 1・2年生向け：20問。じっくり育てる前提で強み・価値観・原動力を探る =====
+export const questions12: Question[] = [
   {
     id: 1,
     category: "行動スタイル",
@@ -229,9 +229,228 @@ export const questions: Question[] = [
   },
 ];
 
-// 学年に関係なく、全員に同じ20問を出す
-export function getQuestions(_grade?: string): Question[] {
-  return questions;
+// ===== 3年生向け：20問。就活直前。「今ある経験の棚卸し」と「今から作れるガクチカ」を設計する =====
+export const questions3: Question[] = [
+  {
+    id: 1,
+    category: "使える時間",
+    text: "就活本番まで、ガクチカづくりに使えそうな時間は？",
+    options: [
+      { label: "まとまった時間を集中して使える", value: "time_lots" },
+      { label: "週に数時間なら作れる", value: "time_some" },
+      { label: "ほぼ無い（今ある活動を活かしたい）", value: "time_none" },
+    ],
+  },
+  {
+    id: 2,
+    category: "活かせる基盤",
+    text: "今も続けている活動はある？（それを土台にできます）",
+    options: [
+      { label: "続けているアルバイトがある", value: "base_parttime" },
+      { label: "サークル・部活がある", value: "base_club" },
+      { label: "ゼミ・研究がある", value: "base_study" },
+      { label: "特にない（新しく始めたい）", value: "base_none" },
+    ],
+  },
+  {
+    id: 3,
+    category: "経験の棚卸し",
+    text: "これまでで一番時間やエネルギーを注いだのは？",
+    options: [
+      { label: "アルバイト・仕事", value: "past_work" },
+      { label: "サークル・部活・チーム活動", value: "past_club" },
+      { label: "勉強・研究・資格", value: "past_study" },
+      { label: "趣味・個人の活動", value: "past_hobby" },
+    ],
+  },
+  {
+    id: 4,
+    category: "始めやすさ",
+    text: "今から動くなら、どれが一番ハードルが低い？",
+    options: [
+      { label: "今の環境で一工夫して成果を出す", value: "start_improve" },
+      { label: "短期で新しいことに挑戦する", value: "start_challenge" },
+      { label: "個人で完結する活動（SNS・制作等）", value: "start_solo" },
+      { label: "資格・勉強で成果を出す", value: "start_study" },
+    ],
+  },
+  {
+    id: 5,
+    category: "活かしたい強み",
+    text: "活動で活かしたい自分の強みは？",
+    options: [
+      { label: "人を巻き込む力", value: "strength_influence" },
+      { label: "地道にやり切る力", value: "strength_persist" },
+      { label: "アイデア・発想力", value: "strength_idea" },
+      { label: "気配り・サポート力", value: "strength_support" },
+    ],
+  },
+  {
+    id: 6,
+    category: "自覚している強み",
+    text: "周りからよく褒められたり頼られたりするのは？",
+    options: [
+      { label: "リーダーシップ・まとめる力", value: "praised_lead" },
+      { label: "真面目さ・責任感", value: "praised_reliable" },
+      { label: "明るさ・コミュ力", value: "praised_social" },
+      { label: "発想・センス・器用さ", value: "praised_idea" },
+    ],
+  },
+  {
+    id: 7,
+    category: "出したい成果",
+    text: "どんな成果が出たら「ガクチカになった」と感じる？",
+    options: [
+      { label: "数字で改善した", value: "goal_number" },
+      { label: "ゼロから何かを立ち上げた", value: "goal_zero" },
+      { label: "続けて形にした", value: "goal_continue" },
+      { label: "誰かの役に立った", value: "goal_help" },
+    ],
+  },
+  {
+    id: 8,
+    category: "原動力",
+    text: "そもそも、あなたが本気になる「きっかけ」は？",
+    options: [
+      { label: "悔しさ・見返したい気持ち", value: "drive_frustration" },
+      { label: "好き・楽しいという純粋な興味", value: "drive_passion" },
+      { label: "誰かの期待に応えたい気持ち", value: "drive_expectation" },
+      { label: "理想の自分に近づきたい気持ち", value: "drive_ideal" },
+    ],
+  },
+  {
+    id: 9,
+    category: "モチベーション",
+    text: "頑張れるのはどんなとき？",
+    options: [
+      { label: "誰かに感謝されたとき", value: "gratitude" },
+      { label: "数字で成果が出たとき", value: "achievement" },
+      { label: "新しいものを生んだとき", value: "creation" },
+      { label: "仲間と達成したとき", value: "teamwork" },
+    ],
+  },
+  {
+    id: 10,
+    category: "進め方の好み",
+    text: "続けやすいのはどっち？",
+    options: [
+      { label: "人と関わりながら進める", value: "style_people" },
+      { label: "一人でコツコツ進める", value: "style_solo" },
+      { label: "どちらでも対応できる", value: "style_both" },
+    ],
+  },
+  {
+    id: 11,
+    category: "継続力",
+    text: "一度始めたことを、あなたはどう続ける？",
+    options: [
+      { label: "目標を決めて計画的に続ける", value: "cont_plan" },
+      { label: "習慣にして淡々と続ける", value: "cont_habit" },
+      { label: "仲間や環境の力を借りて続ける", value: "cont_social" },
+      { label: "飽きないよう形を変えて続ける", value: "cont_adapt" },
+    ],
+  },
+  {
+    id: 12,
+    category: "挑戦度",
+    text: "今から挑戦するなら、どちらが近い？",
+    options: [
+      { label: "慣れた環境で確実に成果を出す", value: "risk_safe" },
+      { label: "少し背伸びして新しい挑戦をする", value: "risk_stretch" },
+    ],
+  },
+  {
+    id: 13,
+    category: "行動の早さ",
+    text: "新しいことを始めるとき、あなたは？",
+    options: [
+      { label: "今日からすぐ動ける", value: "speed_now" },
+      { label: "計画を立ててから動く", value: "speed_plan" },
+      { label: "きっかけがあれば動ける", value: "speed_trigger" },
+    ],
+  },
+  {
+    id: 14,
+    category: "影響の与え方",
+    text: "周りに良い影響を与えるとき、あなたの持ち味は？",
+    options: [
+      { label: "言葉で人を鼓舞する", value: "infl_words" },
+      { label: "行動で示す（背中で見せる）", value: "infl_action" },
+      { label: "一人ひとりに寄り添う", value: "infl_care" },
+      { label: "仕組みや環境を整える", value: "infl_system" },
+    ],
+  },
+  {
+    id: 15,
+    category: "課題解決",
+    text: "困難な状況を、どう乗り越えるタイプ？",
+    options: [
+      { label: "根性で乗り越える（量でカバー）", value: "grit" },
+      { label: "工夫・改善を繰り返す", value: "kaizen" },
+      { label: "仲間や周囲を頼る", value: "rely_on_others" },
+      { label: "全く別の視点・方法を試す", value: "reframe" },
+    ],
+  },
+  {
+    id: 16,
+    category: "失敗との向き合い方",
+    text: "失敗したとき、あなたが最初にすることは？",
+    options: [
+      { label: "原因を分析して次に活かす", value: "fail_analyze" },
+      { label: "すぐ切り替えて再挑戦する", value: "fail_retry" },
+      { label: "人に相談してヒントを得る", value: "fail_consult" },
+      { label: "やり方を根本から見直す", value: "fail_rethink" },
+    ],
+  },
+  {
+    id: 17,
+    category: "大切にしたい相手",
+    text: "「この人たちのために頑張れる」と思うのは？",
+    options: [
+      { label: "身近な仲間・チーム", value: "for_team" },
+      { label: "困っている人・社会", value: "for_society" },
+      { label: "お客さん・相手一人ひとり", value: "for_customer" },
+      { label: "自分自身の成長・目標", value: "for_self" },
+    ],
+  },
+  {
+    id: 18,
+    category: "アピール軸",
+    text: "面接で一番伝えたい強みは？",
+    options: [
+      { label: "行動力・主体性", value: "appeal_action" },
+      { label: "継続力・粘り強さ", value: "appeal_persist" },
+      { label: "課題解決力", value: "appeal_solve" },
+      { label: "協調性・巻き込み力", value: "appeal_team" },
+    ],
+  },
+  {
+    id: 19,
+    category: "就活の不安",
+    text: "ガクチカについて、今いちばん不安なのは？",
+    options: [
+      { label: "そもそもネタが思いつかない", value: "worry_noidea" },
+      { label: "経験はあるが深みが足りない", value: "worry_shallow" },
+      { label: "ありきたりで差別化できない", value: "worry_common" },
+      { label: "うまく言葉にできない", value: "worry_words" },
+    ],
+  },
+  {
+    id: 20,
+    category: "こだわり",
+    text: "成果を出すうえで一番大事にするのは？",
+    options: [
+      { label: "スピード・行動量", value: "value_speed" },
+      { label: "質・完成度", value: "value_quality" },
+      { label: "独自性・新しさ", value: "value_unique" },
+      { label: "確実性・ミスの無さ", value: "value_reliable" },
+    ],
+  },
+];
+
+// 学年に応じて質問セットを出し分ける（問題数はどちらも20問）
+export function getQuestions(grade: string): Question[] {
+  return grade === "3年生" ? questions3 : questions12;
 }
 
 export const industries = [
