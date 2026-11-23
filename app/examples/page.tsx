@@ -5,8 +5,10 @@ import { examples, exampleCategories } from "@/lib/examples";
 import { getPosts, addPost, deletePost, getDiagnosis, formatDate, type UserPost } from "@/lib/storage";
 
 const CAT_COLOR: Record<string, string> = {
-  "アルバイト": "#EA6C00", "サークル": "#0096DF", "ゼミ・研究": "#2E7D32",
-  "長期インターン": "#5E35B1", "ボランティア": "#C2185B", "個人活動": "#00838F", "資格・勉強": "#8A6D3B",
+  "アルバイト": "#EA6C00", "サークル": "#0096DF", "部活動": "#1565C0", "ゼミ・研究": "#2E7D32",
+  "長期インターン": "#5E35B1", "ボランティア": "#C2185B", "個人活動": "#00838F",
+  "趣味・エンタメ": "#D81B60", "留学・旅行": "#0277BD", "学校行事": "#EF6C00",
+  "起業・ビジネス": "#455A64", "資格・勉強": "#8A6D3B", "その他": "#607D8B",
 };
 
 // 投稿時に選べるカテゴリー（「すべて」を除く）
