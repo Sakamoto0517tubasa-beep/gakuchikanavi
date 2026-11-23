@@ -104,14 +104,14 @@ export default function StartPage() {
       </div>
 
       {/* 3つの扉 */}
-      <div className="flex gap-5 mb-10">
+      <div className="grid grid-cols-3 gap-2.5 sm:gap-5 mb-10 w-full max-w-md">
         {doors.map((door, i) => {
           const isOpen = opened.includes(i);
           return (
             <button
               key={i}
               onClick={() => handleDoor(i)}
-              className="relative w-48 h-60 focus:outline-none group"
+              className="relative w-full aspect-[4/5] focus:outline-none group"
               style={{ perspective: "1200px" }}
             >
               {/* 扉（閉じた状態） */}
@@ -133,10 +133,10 @@ export default function StartPage() {
                 </div>
 
                 {/* 中身 */}
-                <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-gray-600">
+                <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 sm:gap-3 px-1.5 text-center text-gray-600">
                   {door.icon}
-                  <p className="text-sm font-medium text-gray-700">{door.title}</p>
-                  <p className="text-xs text-gray-400">{door.sub}</p>
+                  <p className="text-[13px] sm:text-sm font-medium text-gray-700 leading-tight">{door.title}</p>
+                  <p className="text-[10px] sm:text-xs text-gray-400 leading-tight">{door.sub}</p>
                 </div>
 
                 {/* ドアノブ */}
@@ -145,13 +145,13 @@ export default function StartPage() {
 
               {/* 開いた後 */}
               <div
-                className={`absolute inset-0 border-2 transition-all duration-300 flex flex-col items-center justify-center gap-3 ${
+                className={`absolute inset-0 border-2 transition-all duration-300 flex flex-col items-center justify-center gap-2 sm:gap-3 px-1.5 text-center ${
                   isOpen ? "border-[#0068B7] bg-[#0068B7] opacity-100" : "opacity-0 border-gray-200"
                 }`}
               >
                 <div className="text-white">{door.icon}</div>
-                <p className="text-sm font-medium text-white">{door.title}</p>
-                <p className="text-xs text-gray-400">{door.sub}</p>
+                <p className="text-[13px] sm:text-sm font-medium text-white leading-tight">{door.title}</p>
+                <p className="text-[10px] sm:text-xs text-blue-100 leading-tight">{door.sub}</p>
               </div>
             </button>
           );
