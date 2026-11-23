@@ -4,8 +4,8 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import {
   getDiagnosis, getGakuchikaList, deleteGakuchika, formatDate,
-  addPost, getPosts,
-  type SavedDiagnosis, type SavedGakuchika,
+  addPost, getPosts, getScoutInterests,
+  type SavedDiagnosis, type SavedGakuchika, type ScoutInterest,
 } from "@/lib/storage";
 
 export default function MyPage() {
@@ -14,12 +14,14 @@ export default function MyPage() {
   const [openId, setOpenId] = useState<string | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [postedTitles, setPostedTitles] = useState<string[]>([]);
+  const [interests, setInterests] = useState<ScoutInterest[]>([]);
   const [gakuFilter, setGakuFilter] = useState("すべて");
 
   useEffect(() => {
     setDiagnosis(getDiagnosis());
     setGakuchikas(getGakuchikaList());
     setPostedTitles(getPosts().map((p) => p.title));
+    setInterests(getScoutInterests());
   }, []);
 
   const gakuIndustries = Array.from(new Set(gakuchikas.map((g) => g.industry).filter((x): x is string => !!x)));
@@ -177,6 +179,28 @@ export default function MyPage() {
               );
             })}
           </div>
+        )}
+
+        {/* 気になる企業 */}
+        {interests.length > 0 && (
+          <>
+            <div className="flex items-center gap-2 mb-2 px-1">
+              <span className="w-1 h-4 bg-[#0096DF]" />
+              <h2 className="text-[13px] font-medium text-[#0A3059]">気になる企業</h2>
+              <span className="text-[11px] text-gray-400">{interests.length}社</span>
+            </div>
+            <div className="bg-white rounded border border-gray-200 divide-y divide-gray-100 mb-5">
+              {interests.map((it, i) => (
+                <div key={it.company + i} className="px-4 py-3 flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-gray-800">{it.company}</p>
+                    <p className="text-[11px] text-gray-400 mt-0.5">{it.role}</p>
+                  </div>
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="#F08300"><path d="M12 21C5.5 14.5 3 11.5 3 8.5A4.5 4.5 0 0112 6a4.5 4.5 0 019 2.5c0 3-2.5 6-9 12.5z" /></svg>
+                </div>
+              ))}
+            </div>
+          </>
         )}
 
         {/* メニュー */}
