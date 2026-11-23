@@ -161,17 +161,17 @@ export default function StartPage() {
       {/* ガイドテキスト */}
       <div className="h-5 text-center">
         {opened.length === 0 && (
-          <p className="text-xs text-gray-300 tracking-widest">クリックして開く</p>
+          <p className="text-[13px] text-gray-500 tracking-widest">タップして開く</p>
         )}
         {opened.length > 0 && opened.length < 3 && (
-          <p className="text-xs text-gray-400">あと {3 - opened.length} つ</p>
+          <p className="text-[13px] text-[#0096DF] font-medium">あと {3 - opened.length} つ</p>
         )}
         {opened.length === 3 && (
-          <p className="text-xs text-gray-700 tracking-widest">診断を始めます...</p>
+          <p className="text-[13px] text-[#0A3059] font-medium tracking-widest">診断を始めます...</p>
         )}
       </div>
 
-      <button onClick={() => router.back()} className="mt-10 text-xs text-gray-300 hover:text-gray-400 transition-colors">
+      <button onClick={() => router.back()} className="mt-10 text-[13px] text-gray-500 hover:text-gray-700 transition-colors">
         ← 戻る
       </button>
     </main>
