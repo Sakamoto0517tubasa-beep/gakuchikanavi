@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { postAI } from "@/lib/fetchAI";
 
 type Candidate = {
   source: string;
@@ -63,6 +64,7 @@ export default function DiscoverPage() {
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [result, setResult] = useState<{ intro: string; candidates: Candidate[] } | null>(null);
   const [loading, setLoading] = useState(false);
+  const [retrying, setRetrying] = useState(false);
   const [error, setError] = useState("");
 
   const q = QUESTIONS[step];
@@ -96,23 +98,22 @@ export default function DiscoverPage() {
     setLoading(true);
     setError("");
     const payload = QUESTIONS.map((qq) => ({ q: qq.text, a: answers[qq.key] || "" }));
-    fetch("/api/discover", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
+    postAI<{ intro: string; candidates: Candidate[] }>(
+      "/api/discover",
+      {
         answers: payload,
         industry: sessionStorage.getItem("industry") || "",
         jobType: sessionStorage.getItem("jobType") || "",
-      }),
-    })
-      .then((r) => r.json())
+      },
+      { retries: 4, onRetry: () => setRetrying(true) }
+    )
       .then((d) => {
-        if (d.error || !d.candidates) throw new Error();
+        if (!d.candidates) throw new Error();
         setResult(d);
         setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 100);
       })
       .catch(() => setError("発掘に失敗しました。もう一度お試しください。"))
-      .finally(() => setLoading(false));
+      .finally(() => { setLoading(false); setRetrying(false); });
   }
 
   function develop(c: Candidate) {
@@ -246,7 +247,7 @@ export default function DiscoverPage() {
           className="mt-5 w-full bg-[#F08300] text-white text-[15px] font-medium py-4 rounded flex items-center justify-center gap-2 disabled:opacity-50 active:scale-[0.99] hover:bg-[#d97600] transition-all"
         >
           {loading ? (
-            <><span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />AIが発掘中...</>
+            <><span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />{retrying ? "混み合っています。再試行中…" : "AIが発掘中..."}</>
           ) : isLast ? (
             <>ガクチカを見つける<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" /></svg></>
           ) : (

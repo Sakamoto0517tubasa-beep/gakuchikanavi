@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { saveDiagnosis, getDiagnosis } from "@/lib/storage";
+import { postAI } from "@/lib/fetchAI";
 
 type Suggestion = {
   rank: number;
@@ -36,6 +37,7 @@ export default function ResultPage() {
   const [copied, setCopied] = useState<number | null>(null);
   const [msgIdx, setMsgIdx] = useState(0);
   const [shared, setShared] = useState(false);
+  const [retrying, setRetrying] = useState(false);
 
   useEffect(() => {
     const rawAnswers = sessionStorage.getItem("quizAnswers");
@@ -64,14 +66,13 @@ export default function ResultPage() {
     setIndustry(ind);
     setJobType(job);
 
-    fetch("/api/suggest", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ answers, industry: ind, jobType: job, grade, currentGakuchika, gakuchikaTypes }),
-    })
-      .then((res) => res.json())
+    postAI<{ suggestions: Suggestion[]; strengthProfile?: string }>(
+      "/api/suggest",
+      { answers, industry: ind, jobType: job, grade, currentGakuchika, gakuchikaTypes },
+      { retries: 4, onRetry: () => setRetrying(true) }
+    )
       .then((data) => {
-        if (data.error) throw new Error(data.error);
+        if (!data.suggestions) throw new Error("no suggestions");
         setSuggestions(data.suggestions);
         setStrengthProfile(data.strengthProfile || "");
         saveDiagnosis({
@@ -84,7 +85,7 @@ export default function ResultPage() {
         });
       })
       .catch(() => setError("提案の生成に失敗しました。もう一度お試しください。"))
-      .finally(() => setLoading(false));
+      .finally(() => { setLoading(false); setRetrying(false); });
   }, [router]);
 
   useEffect(() => {
@@ -129,7 +130,11 @@ export default function ResultPage() {
         <div className="text-center">
           <div className="w-12 h-12 border-2 border-[#0096DF] border-t-transparent rounded-full animate-spin mx-auto mb-6" />
           <p className="text-[#0A3059] font-bold text-lg">AIが分析中</p>
-          <p key={msgIdx} className="fade-in-up text-gray-500 text-sm mt-2">{LOADING_MSGS[msgIdx]}</p>
+          {retrying ? (
+            <p className="text-[#EA6C00] text-sm mt-2">アクセスが集中しています。自動で再試行中です…</p>
+          ) : (
+            <p key={msgIdx} className="fade-in-up text-gray-500 text-sm mt-2">{LOADING_MSGS[msgIdx]}</p>
+          )}
         </div>
       </main>
     );

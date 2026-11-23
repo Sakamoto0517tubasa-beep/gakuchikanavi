@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { saveGakuchika } from "@/lib/storage";
+import { postAI } from "@/lib/fetchAI";
 
 type Suggestion = {
   title: string;
@@ -79,21 +80,19 @@ export default function BuildPage() {
     setLoading(true);
     setError("");
     setQuality(null);
-    fetch("/api/develop", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
+    postAI<Developed>(
+      "/api/develop",
+      {
         gakuchika,
         industry: sessionStorage.getItem("industry") || "",
         jobType: sessionStorage.getItem("jobType") || "",
         grade: sessionStorage.getItem("grade") || "",
         inputs,
         dialogue: digHistory,
-      }),
-    })
-      .then((r) => r.json())
+      },
+      { retries: 4 }
+    )
       .then((d) => {
-        if (d.error) throw new Error(d.error);
         setResult(d);
         if (gakuchika) {
           saveGakuchika({
