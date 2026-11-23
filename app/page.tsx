@@ -59,7 +59,10 @@ export default function Home() {
                 <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="#F08300" strokeWidth="1.8"><circle cx="11" cy="11" r="7" /><path d="M16.5 16.5L21 21" strokeLinecap="round" /><path d="M11 8v6M8 11h6" strokeLinecap="round" /></svg>
               </span>
               <div className="flex-1 min-w-0">
-                <p className="text-[15px] font-medium text-gray-900">今ある経験から見つける</p>
+                <div className="flex items-center gap-2">
+                  <p className="text-[15px] font-medium text-gray-900">今ある経験から見つける</p>
+                  <span className="text-[10px] font-medium text-white bg-[#F08300] px-1.5 py-px rounded-sm">無料</span>
+                </div>
                 <p className="text-[13px] text-gray-600 mt-1 leading-relaxed">「ガクチカがない」人へ。日常の<span className="text-[#F08300] font-medium">些細な経験</span>に光を当てて発掘</p>
                 <span className="mt-2 inline-flex items-center gap-1 text-[13px] font-medium text-[#F08300]">経験から探す<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="#F08300" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/></svg></span>
               </div>
