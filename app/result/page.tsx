@@ -43,6 +43,7 @@ export default function ResultPage() {
     const job = sessionStorage.getItem("jobType") || "";
     const grade = sessionStorage.getItem("grade") || "";
     const currentGakuchika = sessionStorage.getItem("currentGakuchika") || "";
+    const gakuchikaTypes = sessionStorage.getItem("gakuchikaTypes") || "";
 
     // 診断フローを通っていない（＝マイページ等から再表示）→ 保存済みの結果を表示
     if (!rawAnswers) {
@@ -66,7 +67,7 @@ export default function ResultPage() {
     fetch("/api/suggest", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ answers, industry: ind, jobType: job, grade, currentGakuchika }),
+      body: JSON.stringify({ answers, industry: ind, jobType: job, grade, currentGakuchika, gakuchikaTypes }),
     })
       .then((res) => res.json())
       .then((data) => {
