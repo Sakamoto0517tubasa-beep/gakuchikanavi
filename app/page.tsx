@@ -1,6 +1,3 @@
-"use client";
-
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 const columns = [
@@ -17,8 +14,6 @@ const faqs = [
 ];
 
 export default function Home() {
-  const router = useRouter();
-
   return (
     <main className="min-h-screen bg-[#F2F3F5]">
       {/* トップバー */}
@@ -36,7 +31,7 @@ export default function Home() {
         </h2>
         <div className="flex flex-col gap-3">
           {/* モードA：強み診断 */}
-          <button onClick={() => router.push("/start")} className="w-full text-left bg-white rounded-lg border border-gray-200 px-4 py-4 active:bg-gray-50 transition-colors">
+          <Link href="/start" className="block w-full text-left bg-white rounded-lg border border-gray-200 px-4 py-4 active:bg-gray-50 transition-colors">
             <div className="flex items-start gap-3">
               <span className="w-11 h-11 rounded-full bg-[#EAF4FB] flex items-center justify-center shrink-0">
                 <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="#0096DF" strokeWidth="1.8"><path d="M9 11l3 3 8-8M20 12v6a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h9" strokeLinecap="round" strokeLinejoin="round"/></svg>
@@ -50,10 +45,10 @@ export default function Home() {
                 <span className="mt-2 inline-flex items-center gap-1 text-[13px] font-medium text-[#0096DF]">診断を始める<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="#0096DF" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/></svg></span>
               </div>
             </div>
-          </button>
+          </Link>
 
           {/* モードB：経験から発掘 */}
-          <button onClick={() => router.push("/discover")} className="w-full text-left bg-white rounded-lg border border-gray-200 px-4 py-4 active:bg-gray-50 transition-colors">
+          <Link href="/discover" className="block w-full text-left bg-white rounded-lg border border-gray-200 px-4 py-4 active:bg-gray-50 transition-colors">
             <div className="flex items-start gap-3">
               <span className="w-11 h-11 rounded-full bg-[#FDEEE6] flex items-center justify-center shrink-0">
                 <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="#F08300" strokeWidth="1.8"><circle cx="11" cy="11" r="7" /><path d="M16.5 16.5L21 21" strokeLinecap="round" /><path d="M11 8v6M8 11h6" strokeLinecap="round" /></svg>
@@ -67,7 +62,7 @@ export default function Home() {
                 <span className="mt-2 inline-flex items-center gap-1 text-[13px] font-medium text-[#F08300]">経験から探す<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="#F08300" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/></svg></span>
               </div>
             </div>
-          </button>
+          </Link>
         </div>
       </div>
 

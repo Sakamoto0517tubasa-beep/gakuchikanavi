@@ -1,5 +1,3 @@
-"use client";
-
 export default function ScoutPage() {
   return (
     <main className="min-h-screen bg-[#F2F3F5]">
