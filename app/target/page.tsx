@@ -4,20 +4,32 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { industries, jobTypes } from "@/lib/questions";
 
+const UNDECIDED = "まだ決めていない";
+
 export default function TargetPage() {
   const router = useRouter();
-  const [industry, setIndustry] = useState("");
-  const [jobType, setJobType] = useState("");
+  const [industry, setIndustry] = useState<string[]>([]);
+  const [jobType, setJobType] = useState<string[]>([]);
   const [currentGakuchika, setCurrentGakuchika] = useState("");
 
   useEffect(() => {
     if (!sessionStorage.getItem("quizAnswers")) router.replace("/start");
   }, [router]);
 
+  // 複数選択トグル。「まだ決めていない」は他の選択肢と排他にする
+  function toggle(list: string[], setList: (v: string[]) => void, value: string) {
+    if (value === UNDECIDED) {
+      setList(list.includes(UNDECIDED) ? [] : [UNDECIDED]);
+      return;
+    }
+    const base = list.filter((x) => x !== UNDECIDED);
+    setList(base.includes(value) ? base.filter((x) => x !== value) : [...base, value]);
+  }
+
   function handleSubmit() {
-    if (!industry || !jobType) return;
-    sessionStorage.setItem("industry", industry);
-    sessionStorage.setItem("jobType", jobType);
+    if (industry.length === 0 || jobType.length === 0) return;
+    sessionStorage.setItem("industry", industry.join("、"));
+    sessionStorage.setItem("jobType", jobType.join("、"));
     sessionStorage.setItem("currentGakuchika", currentGakuchika);
     router.push("/result");
   }
@@ -30,14 +42,15 @@ export default function TargetPage() {
 
         {/* 業界 */}
         <div className="mb-6">
-          <label className="block text-sm font-bold text-[#1A1A2E] mb-3">志望業界</label>
+          <label className="block text-sm font-bold text-[#1A1A2E] mb-1">志望業界 <span className="text-gray-400 font-normal text-xs">（複数選択OK）</span></label>
+          <p className="text-[12px] text-gray-400 mb-3">当てはまるものをすべて選んでください</p>
           <div className="grid grid-cols-2 gap-2">
             {industries.map((ind) => (
               <button
                 key={ind}
-                onClick={() => setIndustry(ind)}
+                onClick={() => toggle(industry, setIndustry, ind)}
                 className={`px-4 py-3 rounded border text-sm font-medium transition-all ${
-                  industry === ind
+                  industry.includes(ind)
                     ? "border-[#0096DF] bg-[#EAF4FB] text-[#0A3059]"
                     : "border-gray-200 text-gray-600 hover:border-gray-300"
                 }`}
@@ -47,9 +60,9 @@ export default function TargetPage() {
             ))}
           </div>
           <button
-            onClick={() => setIndustry("まだ決めていない")}
+            onClick={() => toggle(industry, setIndustry, UNDECIDED)}
             className={`mt-2 w-full px-4 py-3 rounded border text-sm font-medium transition-all ${
-              industry === "まだ決めていない"
+              industry.includes(UNDECIDED)
                 ? "border-[#0096DF] bg-[#EAF4FB] text-[#0A3059]"
                 : "border-dashed border-gray-300 text-gray-500 hover:border-gray-400"
             }`}
@@ -60,14 +73,15 @@ export default function TargetPage() {
 
         {/* 職種 */}
         <div className="mb-6">
-          <label className="block text-sm font-bold text-[#1A1A2E] mb-3">志望職種</label>
+          <label className="block text-sm font-bold text-[#1A1A2E] mb-1">志望職種 <span className="text-gray-400 font-normal text-xs">（複数選択OK）</span></label>
+          <p className="text-[12px] text-gray-400 mb-3">当てはまるものをすべて選んでください</p>
           <div className="grid grid-cols-2 gap-2">
             {jobTypes.map((job) => (
               <button
                 key={job}
-                onClick={() => setJobType(job)}
+                onClick={() => toggle(jobType, setJobType, job)}
                 className={`px-4 py-3 rounded border text-sm font-medium transition-all ${
-                  jobType === job
+                  jobType.includes(job)
                     ? "border-[#0096DF] bg-[#EAF4FB] text-[#0A3059]"
                     : "border-gray-200 text-gray-600 hover:border-gray-300"
                 }`}
@@ -77,9 +91,9 @@ export default function TargetPage() {
             ))}
           </div>
           <button
-            onClick={() => setJobType("まだ決めていない")}
+            onClick={() => toggle(jobType, setJobType, UNDECIDED)}
             className={`mt-2 w-full px-4 py-3 rounded border text-sm font-medium transition-all ${
-              jobType === "まだ決めていない"
+              jobType.includes(UNDECIDED)
                 ? "border-[#0096DF] bg-[#EAF4FB] text-[#0A3059]"
                 : "border-dashed border-gray-300 text-gray-500 hover:border-gray-400"
             }`}
@@ -104,13 +118,13 @@ export default function TargetPage() {
 
         <button
           onClick={handleSubmit}
-          disabled={!industry || !jobType}
+          disabled={industry.length === 0 || jobType.length === 0}
           className="w-full bg-[#F08300] text-white text-[15px] font-bold py-4 rounded disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[#d97600] transition-colors"
         >
           AIに提案してもらう →
         </button>
-        {(!industry || !jobType) && (
-          <p className="text-[12px] text-gray-400 text-center mt-2.5">志望業界と志望職種を選択してください</p>
+        {(industry.length === 0 || jobType.length === 0) && (
+          <p className="text-[12px] text-gray-400 text-center mt-2.5">志望業界と志望職種をそれぞれ1つ以上選択してください</p>
         )}
       </div>
     </main>
