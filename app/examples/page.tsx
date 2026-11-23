@@ -2,7 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { examples, exampleCategories } from "@/lib/examples";
-import { getPosts, addPost, deletePost, getDiagnosis, formatDate, type UserPost } from "@/lib/storage";
+import { getDiagnosis, formatDate } from "@/lib/storage";
+import {
+  isSupabaseEnabled, fetchPublicPosts, addPublicPost, deletePublicPost,
+  getMyPublicPostIds, addMyPublicPostId, removeMyPublicPostId, type PublicPost,
+} from "@/lib/supabase";
 
 const CAT_COLOR: Record<string, string> = {
   "アルバイト": "#EA6C00", "サークル": "#0096DF", "部活動": "#1565C0", "ゼミ・研究": "#2E7D32",
@@ -16,7 +20,9 @@ const POST_CATEGORIES = exampleCategories.filter((c) => c !== "すべて");
 
 export default function ExamplesPage() {
   const [cat, setCat] = useState("すべて");
-  const [posts, setPosts] = useState<UserPost[]>([]);
+  const [posts, setPosts] = useState<PublicPost[]>([]);
+  const [myIds, setMyIds] = useState<string[]>([]);
+  const [submitting, setSubmitting] = useState(false);
 
   // 投稿フォーム
   const [composing, setComposing] = useState(false);
@@ -24,11 +30,22 @@ export default function ExamplesPage() {
   const [fBody, setFBody] = useState("");
   const [fCat, setFCat] = useState(POST_CATEGORIES[0]);
 
-  useEffect(() => { setPosts(getPosts()); }, []);
+  async function reload() {
+    setPosts(await fetchPublicPosts());
+  }
 
-  function removePost(id: string) {
-    deletePost(id);
-    setPosts(getPosts());
+  useEffect(() => {
+    setMyIds(getMyPublicPostIds());
+    reload();
+  }, []);
+
+  async function removePost(id: string) {
+    const ok = await deletePublicPost(id);
+    if (ok) {
+      removeMyPublicPostId(id);
+      setMyIds(getMyPublicPostIds());
+      reload();
+    }
   }
 
   function openCompose() {
@@ -39,12 +56,11 @@ export default function ExamplesPage() {
     setComposing(true);
   }
 
-  function submitPost() {
-    if (!fTitle.trim() || !fBody.trim()) return;
+  async function submitPost() {
+    if (!fTitle.trim() || !fBody.trim() || submitting) return;
+    setSubmitting(true);
     const diag = getDiagnosis();
-    addPost({
-      id: (typeof crypto !== "undefined" && crypto.randomUUID) ? crypto.randomUUID() : String(Date.now()),
-      date: new Date().toISOString(),
+    const created = await addPublicPost({
       grade: diag?.grade || "",
       industry: diag?.industry || "",
       jobType: diag?.jobType || "",
@@ -52,11 +68,18 @@ export default function ExamplesPage() {
       title: fTitle.trim(),
       body: fBody.trim(),
     });
-    setPosts(getPosts());
+    setSubmitting(false);
+    if (!created) {
+      alert("投稿に失敗しました。時間をおいて再度お試しください。");
+      return;
+    }
+    addMyPublicPostId(created.id);
+    setMyIds(getMyPublicPostIds());
+    await reload();
     setComposing(false);
   }
 
-  const canPost = fTitle.trim().length > 0 && fBody.trim().length > 0;
+  const canPost = fTitle.trim().length > 0 && fBody.trim().length > 0 && !submitting;
   const list = examples.filter((e) => cat === "すべて" || e.category === cat);
   const showPosts = cat === "すべて" ? posts : posts.filter((p) => p.category === cat);
 
@@ -94,28 +117,33 @@ export default function ExamplesPage() {
       </div>
 
       <div className="max-w-2xl mx-auto px-4 py-4 flex flex-col gap-3">
-        {showPosts.map((p) => (
-          <article key={p.id} className="bg-white rounded border-2 border-[#9fd3ef] px-4 py-4">
-            <div className="flex items-center gap-2.5 mb-3">
-              <span className="w-9 h-9 rounded-full bg-[#EAF4FB] flex items-center justify-center shrink-0">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0096DF" strokeWidth="1.6"><circle cx="12" cy="8" r="3.5" /><path d="M5 20c0-3.9 3.1-7 7-7s7 3.1 7 7" strokeLinecap="round" /></svg>
-              </span>
-              <div className="flex-1 min-w-0">
-                <p className="text-[13px] text-gray-800">あなたの投稿{p.grade ? `・${p.grade}` : ""}</p>
-                <p className="text-[11px] text-gray-400">{p.industry || p.jobType ? `志望：${p.industry}／${p.jobType}・` : ""}{formatDate(p.date)}</p>
+        {showPosts.map((p) => {
+          const mine = myIds.includes(p.id);
+          return (
+            <article key={p.id} className={`bg-white rounded px-4 py-4 ${mine ? "border-2 border-[#9fd3ef]" : "border border-gray-200"}`}>
+              <div className="flex items-center gap-2.5 mb-3">
+                <span className="w-9 h-9 rounded-full bg-[#EAF4FB] flex items-center justify-center shrink-0">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0096DF" strokeWidth="1.6"><circle cx="12" cy="8" r="3.5" /><path d="M5 20c0-3.9 3.1-7 7-7s7 3.1 7 7" strokeLinecap="round" /></svg>
+                </span>
+                <div className="flex-1 min-w-0">
+                  <p className="text-[13px] text-gray-800">{mine ? "あなたの投稿" : "みんなの投稿"}{p.grade ? `・${p.grade}` : ""}</p>
+                  <p className="text-[11px] text-gray-400">{p.industry || p.job_type ? `志望：${p.industry}／${p.job_type}・` : ""}{formatDate(p.created_at)}</p>
+                </div>
+                {p.category && (
+                  <span className="text-[10px] text-white px-1.5 py-0.5 rounded-sm shrink-0" style={{ backgroundColor: CAT_COLOR[p.category] ?? "#607D8B" }}>{p.category}</span>
+                )}
               </div>
-              {p.category && (
-                <span className="text-[10px] text-white px-1.5 py-0.5 rounded-sm shrink-0" style={{ backgroundColor: CAT_COLOR[p.category] ?? "#607D8B" }}>{p.category}</span>
+              <p className="text-[15px] font-medium text-gray-900 mb-1.5">{p.title}</p>
+              <p className="text-[13px] text-gray-600 leading-relaxed whitespace-pre-wrap">{p.body}</p>
+              {mine && (
+                <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-100">
+                  <span className="text-[10px] text-white px-1.5 py-0.5 rounded-sm bg-[#0096DF]">自分</span>
+                  <button onClick={() => removePost(p.id)} className="text-xs text-gray-400 hover:text-red-500 transition-colors">投稿を削除</button>
+                </div>
               )}
-            </div>
-            <p className="text-[15px] font-medium text-gray-900 mb-1.5">{p.title}</p>
-            <p className="text-[13px] text-gray-600 leading-relaxed whitespace-pre-wrap">{p.body}</p>
-            <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-100">
-              <span className="text-[10px] text-white px-1.5 py-0.5 rounded-sm bg-[#0096DF]">自分</span>
-              <button onClick={() => removePost(p.id)} className="text-xs text-gray-400 hover:text-red-500 transition-colors">投稿を削除</button>
-            </div>
-          </article>
-        ))}
+            </article>
+          );
+        })}
         {list.map((e) => (
           <article key={e.id} className="bg-white rounded border border-gray-200 px-4 py-4">
             {/* 投稿者 */}
@@ -192,11 +220,11 @@ export default function ExamplesPage() {
               <button
                 onClick={submitPost}
                 disabled={!canPost}
-                className="mt-3 w-full bg-[#F08300] text-white text-[15px] font-medium py-3 rounded active:scale-[0.99] hover:bg-[#d97600] transition-all disabled:opacity-50"
+                className="mt-3 w-full bg-[#F08300] text-white text-[15px] font-medium py-3 rounded active:scale-[0.99] hover:bg-[#d97600] transition-all disabled:opacity-50 flex items-center justify-center gap-2"
               >
-                投稿する
+                {submitting ? (<><span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />投稿中...</>) : "投稿する"}
               </button>
-              <p className="text-[11px] text-gray-400 text-center mt-2">投稿はこの端末内に保存されます（公開されません）</p>
+              <p className="text-[11px] text-gray-400 text-center mt-2">投稿すると「みんなのガクチカ」に公開され、他の人も参考にできます</p>
             </div>
           </div>
         </div>

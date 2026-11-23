@@ -4,9 +4,18 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import {
   getDiagnosis, getGakuchikaList, deleteGakuchika, formatDate,
-  addPost, getPosts, getScoutInterests,
+  getScoutInterests,
   type SavedDiagnosis, type SavedGakuchika, type ScoutInterest,
 } from "@/lib/storage";
+import { addPublicPost, addMyPublicPostId } from "@/lib/supabase";
+
+const POSTED_KEY = "gn_posted_titles";
+function getPostedTitles(): string[] {
+  try { const r = localStorage.getItem(POSTED_KEY); return r ? JSON.parse(r) : []; } catch { return []; }
+}
+function markPosted(title: string) {
+  try { localStorage.setItem(POSTED_KEY, JSON.stringify([title, ...getPostedTitles()])); } catch {}
+}
 
 export default function MyPage() {
   const [diagnosis, setDiagnosis] = useState<SavedDiagnosis | null>(null);
@@ -20,25 +29,29 @@ export default function MyPage() {
   useEffect(() => {
     setDiagnosis(getDiagnosis());
     setGakuchikas(getGakuchikaList());
-    setPostedTitles(getPosts().map((p) => p.title));
+    setPostedTitles(getPostedTitles());
     setInterests(getScoutInterests());
   }, []);
 
   const gakuIndustries = Array.from(new Set(gakuchikas.map((g) => g.industry).filter((x): x is string => !!x)));
   const filteredGaku = gakuFilter === "すべて" ? gakuchikas : gakuchikas.filter((g) => g.industry === gakuFilter);
 
-  function post(g: SavedGakuchika) {
-    addPost({
-      id: (typeof crypto !== "undefined" && crypto.randomUUID) ? crypto.randomUUID() : String(Date.now()),
-      date: new Date().toISOString(),
+  async function post(g: SavedGakuchika) {
+    const created = await addPublicPost({
       grade: diagnosis?.grade || "",
       industry: g.industry || diagnosis?.industry || "",
       jobType: g.jobType || diagnosis?.jobType || "",
-      category: "",
+      category: "その他",
       title: g.title,
       body: g.fullText,
     });
-    setPostedTitles(getPosts().map((p) => p.title));
+    if (!created) {
+      alert("投稿に失敗しました。時間をおいて再度お試しください。");
+      return;
+    }
+    addMyPublicPostId(created.id);
+    markPosted(g.title);
+    setPostedTitles(getPostedTitles());
   }
 
   const done = !!diagnosis;
