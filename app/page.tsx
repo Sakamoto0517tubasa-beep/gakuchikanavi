@@ -38,10 +38,10 @@ export default function Home() {
               </span>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
-                  <p className="text-[15px] font-medium text-gray-900">強み診断から見つける</p>
+                  <p className="text-[15px] font-medium text-gray-900">これからガクチカを作る</p>
                   <span className="text-[10px] font-medium text-white bg-[#F08300] px-1.5 py-px rounded-sm">無料</span>
                 </div>
-                <p className="text-[13px] text-gray-600 mt-1 leading-relaxed">質問に答えると、AIがあなたに合ったガクチカを<span className="text-[#0096DF] font-medium">10個</span>提案（約3分）</p>
+                <p className="text-[13px] text-gray-600 mt-1 leading-relaxed">強み診断に答えると、AIがあなたに合ったガクチカを<span className="text-[#0096DF] font-medium">10個</span>提案（約3分）</p>
                 <span className="mt-2 inline-flex items-center gap-1 text-[13px] font-medium text-[#0096DF]">診断を始める<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="#0096DF" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/></svg></span>
               </div>
             </div>
@@ -55,10 +55,10 @@ export default function Home() {
               </span>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
-                  <p className="text-[15px] font-medium text-gray-900">今ある経験から見つける</p>
+                  <p className="text-[15px] font-medium text-gray-900">今までの経験からガクチカを作る</p>
                   <span className="text-[10px] font-medium text-white bg-[#F08300] px-1.5 py-px rounded-sm">無料</span>
                 </div>
-                <p className="text-[13px] text-gray-600 mt-1 leading-relaxed">「ガクチカがない」人へ。日常の<span className="text-[#F08300] font-medium">些細な経験</span>に光を当てて発掘</p>
+                <p className="text-[13px] text-gray-600 mt-1 leading-relaxed">「ガクチカがない」人へ。普段の<span className="text-[#F08300] font-medium">些細な行動</span>から、あなただけのガクチカを発見</p>
                 <span className="mt-2 inline-flex items-center gap-1 text-[13px] font-medium text-[#F08300]">経験から探す<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="#F08300" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/></svg></span>
               </div>
             </div>
