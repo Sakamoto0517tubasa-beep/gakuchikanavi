@@ -122,6 +122,9 @@ export default function DiscoverPage() {
           <div className="max-w-2xl mx-auto px-5 pt-11 pb-6">
             <h1 className="text-xl font-bold text-white leading-snug">あなたの経験から<br />見つかったガクチカ</h1>
             {result.intro && <p className="text-blue-100 text-[13px] mt-2 leading-relaxed">{result.intro}</p>}
+            <p className="text-blue-100 text-[12px] mt-2 leading-relaxed bg-white/10 rounded px-3 py-2">
+              気になるものを選ぶと、AIが<span className="text-white font-medium">「なぜ取り組んでいるのか」</span>を一緒に深掘りします。ガクチカは“何をしたか”より“なぜ”が大事です。
+            </p>
           </div>
         </div>
         <div className="max-w-2xl mx-auto px-4 py-6">
@@ -148,7 +151,7 @@ export default function DiscoverPage() {
                   onClick={() => develop(c)}
                   className="mt-4 w-full bg-[#F08300] text-white text-[15px] font-medium py-3 rounded flex items-center justify-center gap-1.5 active:scale-[0.99] hover:bg-[#d97600] transition-all"
                 >
-                  このガクチカを深める
+            「なぜ？」から深めてガクチカにする
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" /></svg>
                 </button>
               </div>
