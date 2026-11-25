@@ -12,92 +12,62 @@ type Candidate = {
   howToDeepen: string;
 };
 
-// 日常を聞く質問（本人の実体験を引き出す）
+// 実体験を問う20問（具体的な行動ベース）。頻度4択で答える
 const QUESTIONS = [
-  {
-    key: "immerse",
-    text: "最近、時間を忘れて没頭したことは？",
-    hint: "趣味・ゲーム・制作など何でも",
-    examples: ["好きなゲームの攻略", "動画・画像の編集", "絵やイラスト", "推しの応援・遠征"],
-  },
-  {
-    key: "thanks",
-    text: "人から「ありがとう」「助かった」と言われたことは？",
-    hint: "小さなことでOK",
-    examples: ["後輩に教えた", "バイトでミスをカバー", "友達の相談に乗った", "イベントを手伝った"],
-  },
-  {
-    key: "relied",
-    text: "誰かに頼られたり、相談されたりすることは？",
-    hint: "よく任される役回りなど",
-    examples: ["恋愛・進路の相談", "勉強を教える", "幹事・まとめ役", "LINEグループの管理"],
-  },
-  {
-    key: "continue",
-    text: "めんどくさいけど、なんだかんだ続けていることは？",
-    hint: "習慣・ルーティン",
-    examples: ["毎日の筋トレ", "ほぼ皆勤", "家計簿・貯金", "SNSの毎日投稿"],
-  },
-  {
-    key: "improve",
-    text: "自分なりに工夫して「ちょっと良くした」ことは？",
-    hint: "効率化・改善など",
-    examples: ["バイトの段取り改善", "勉強法を変えた", "シフト調整の工夫", "持ち物の整理術"],
-  },
-  {
-    key: "proud",
-    text: "こだわっていること・ちょっと誇れることは？",
-    hint: "マイルール・特技",
-    examples: ["節約術", "時間を必ず守る", "整理整頓", "人の名前を覚える"],
-  },
-  {
-    key: "other",
-    text: "その他、力を入れていること・ハマっていることは？（任意）",
-    hint: "上に当てはまらないこと",
-    examples: ["アルバイト", "サークル・部活", "ゼミ・研究", "ボランティア"],
-  },
+  "人に何かを教えたり、やり方を説明したりすることは？",
+  "友達や周りの人から、相談を受けることは？",
+  "グループやイベントで、まとめ役・幹事をやることは？",
+  "めんどくさいことでも、コツコツ続けていることは？",
+  "自分なりに工夫して、作業や生活を効率化することは？",
+  "お金のやりくり・節約・貯金を意識してやることは？",
+  "SNS・動画・ブログなどで発信・投稿することは？",
+  "何かを自分でゼロから作ること（制作・開発・企画）は？",
+  "新しいことに、自分から挑戦することは？",
+  "苦手なことを克服しようと努力することは？",
+  "アルバイトで、言われた以上のことをやる・改善を提案することは？",
+  "目標を決めて、計画的に取り組むことは？",
+  "困っている人を手助けすることは？",
+  "細かい作業を、正確に・丁寧にやりきることは？",
+  "人を巻き込んで、何かを一緒に進めることは？",
+  "調べ物やデータ整理など、情報を集めてまとめることは？",
+  "大会・コンテスト・発表など、人前で成果を出す場に挑むことは？",
+  "家族の手伝い・家事・家業を担うことは？",
+  "趣味や特技を、本気で極めようとすることは？",
+  "失敗しても、原因を考えて立て直すことは？",
+];
+
+const CHOICES = [
+  { label: "よくある", color: "#0096DF", bg: "#EAF4FB", border: "#9fd3ef" },
+  { label: "たまにある", color: "#0A3059", bg: "#F2F6FA", border: "#c7d6e6" },
+  { label: "あまりない", color: "#6b7785", bg: "#F5F6F8", border: "#d8dde3" },
+  { label: "まったくない", color: "#9aa5b1", bg: "#F7F8FA", border: "#e2e6ea" },
 ];
 
 export default function DiscoverPage() {
   const router = useRouter();
   const [step, setStep] = useState(0);
-  const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [answers, setAnswers] = useState<Record<number, string>>({});
   const [result, setResult] = useState<{ intro: string; candidates: Candidate[] } | null>(null);
   const [loading, setLoading] = useState(false);
   const [retrying, setRetrying] = useState(false);
   const [error, setError] = useState("");
 
-  const q = QUESTIONS[step];
-  const current = answers[q.key] || "";
-  const isLast = step === QUESTIONS.length - 1;
-  const progress = Math.round(((step + 1) / QUESTIONS.length) * 100);
-  const answeredCount = Object.values(answers).filter((a) => a.trim()).length;
+  const progress = Math.round((step / QUESTIONS.length) * 100);
 
-  function setCurrent(v: string) {
-    setAnswers((prev) => ({ ...prev, [q.key]: v }));
-  }
-
-  function addExample(ex: string) {
-    const v = current.trim();
-    setCurrent(v ? `${v}、${ex}` : ex);
-  }
-
-  function next() {
-    if (isLast) {
-      discover();
+  function select(label: string) {
+    const nextAnswers = { ...answers, [step]: label };
+    setAnswers(nextAnswers);
+    if (step + 1 < QUESTIONS.length) {
+      setStep(step + 1);
     } else {
-      setStep((s) => s + 1);
+      discover(nextAnswers);
     }
   }
 
-  function discover() {
-    if (answeredCount === 0) {
-      setError("1つでも書いてから進んでください");
-      return;
-    }
+  function discover(all: Record<number, string>) {
     setLoading(true);
     setError("");
-    const payload = QUESTIONS.map((qq) => ({ q: qq.text, a: answers[qq.key] || "" }));
+    const payload = QUESTIONS.map((q, i) => ({ q, a: all[i] || "まったくない" }));
     postAI<{ intro: string; candidates: Candidate[] }>(
       "/api/discover",
       {
@@ -129,7 +99,22 @@ export default function DiscoverPage() {
     router.push("/build");
   }
 
-  // ===== 結果画面 =====
+  // ===== ローディング =====
+  if (loading) {
+    return (
+      <main className="min-h-screen bg-[#EEF1F5] flex flex-col items-center justify-center px-4">
+        <div className="text-center">
+          <div className="w-12 h-12 border-2 border-[#0096DF] border-t-transparent rounded-full animate-spin mx-auto mb-6" />
+          <p className="text-[#0A3059] font-bold text-lg">AIが発掘中</p>
+          <p className="text-sm mt-2" style={{ color: retrying ? "#EA6C00" : "#6b7785" }}>
+            {retrying ? "混み合っています。自動で再試行中です…" : "あなたの経験からガクチカを探しています…"}
+          </p>
+        </div>
+      </main>
+    );
+  }
+
+  // ===== 結果 =====
   if (result) {
     return (
       <main className="min-h-screen bg-[#EEF1F5] pb-16">
@@ -170,7 +155,7 @@ export default function DiscoverPage() {
             ))}
           </div>
           <button
-            onClick={() => { setResult(null); setStep(0); }}
+            onClick={() => { setResult(null); setStep(0); setAnswers({}); }}
             className="mt-6 w-full text-[13px] text-gray-500 hover:text-gray-700 py-2"
           >
             ← もう一度、質問に答えて見つける
@@ -180,7 +165,7 @@ export default function DiscoverPage() {
     );
   }
 
-  // ===== 質問画面 =====
+  // ===== 質問 =====
   return (
     <main className="min-h-screen bg-[#EEF1F5] pb-16">
       <div className="bg-[#0A3059]">
@@ -191,14 +176,14 @@ export default function DiscoverPage() {
           </button>
           <h1 className="text-xl font-bold text-white leading-snug">今ある経験から<br />ガクチカを見つける</h1>
           <p className="text-blue-100 text-[13px] mt-2 leading-relaxed">
-            いくつかの質問に答えるだけ。些細なことでOK。あなたが書いたことをもとに、AIがガクチカの種を見つけます。
+            日常の「やってること」に答えるだけ。些細なことでOK。よくやっていることほど、あなただけのガクチカになります。
           </p>
         </div>
       </div>
 
       <div className="max-w-2xl mx-auto px-4 py-6">
         {/* 進捗 */}
-        <div className="mb-5">
+        <div className="mb-6">
           <div className="flex justify-between text-[12px] text-gray-500 mb-1.5">
             <span>質問 {step + 1} / {QUESTIONS.length}</span>
             <span>{progress}%</span>
@@ -209,60 +194,28 @@ export default function DiscoverPage() {
         </div>
 
         {/* 質問 */}
-        <div className="bg-white border border-gray-200 rounded-lg px-5 py-5">
-          <h2 className="text-[17px] font-bold text-[#0A3059] leading-snug">{q.text}</h2>
-          <p className="text-[12px] text-gray-500 mt-1">{q.hint}</p>
+        <p className="text-[12px] tracking-widest text-gray-500 mb-2">こんなこと、どれくらいある？</p>
+        <h2 className="text-[19px] font-bold text-[#0A3059] mb-6 leading-relaxed">{QUESTIONS[step]}</h2>
 
-          <textarea
-            value={current}
-            onChange={(e) => setCurrent(e.target.value)}
-            placeholder="思いつくことを書いてみてください（空欄で次へ進んでもOK）"
-            rows={3}
-            className="mt-3 w-full border border-gray-300 rounded px-3 py-2.5 text-sm text-gray-800 leading-relaxed focus:outline-none focus:border-[#0096DF] resize-none"
-          />
-
-          {/* 例（タップで入力） */}
-          <div className="mt-3">
-            <p className="text-[11px] text-gray-400 mb-1.5">例（タップで入力）</p>
-            <div className="flex flex-wrap gap-1.5">
-              {q.examples.map((ex) => (
-                <button
-                  key={ex}
-                  onClick={() => addExample(ex)}
-                  className="text-[12px] text-gray-600 bg-gray-50 border border-gray-200 rounded-full px-2.5 py-1 hover:border-[#0096DF] hover:text-[#0096DF] transition-colors"
-                >
-                  ＋ {ex}
-                </button>
-              ))}
-            </div>
-          </div>
+        {/* 頻度4択 */}
+        <div className="flex flex-col gap-2.5">
+          {CHOICES.map((c) => (
+            <button
+              key={c.label}
+              onClick={() => select(c.label)}
+              className="w-full text-left px-5 py-4 rounded border font-medium transition-all active:scale-[0.99]"
+              style={{
+                color: answers[step] === c.label ? "#fff" : c.color,
+                backgroundColor: answers[step] === c.label ? c.color : c.bg,
+                borderColor: answers[step] === c.label ? c.color : c.border,
+              }}
+            >
+              {c.label}
+            </button>
+          ))}
         </div>
 
-        {error && <p className="text-red-500 text-sm text-center mt-3">{error}</p>}
-
-        {/* 操作ボタン */}
-        <button
-          onClick={next}
-          disabled={loading}
-          className="mt-5 w-full bg-[#F08300] text-white text-[15px] font-medium py-4 rounded flex items-center justify-center gap-2 disabled:opacity-50 active:scale-[0.99] hover:bg-[#d97600] transition-all"
-        >
-          {loading ? (
-            <><span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />{retrying ? "混み合っています。再試行中…" : "AIが発掘中..."}</>
-          ) : isLast ? (
-            <>ガクチカを見つける<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" /></svg></>
-          ) : (
-            <>次へ<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" /></svg></>
-          )}
-        </button>
-
-        {!isLast && (
-          <button onClick={() => setStep((s) => s + 1)} disabled={loading} className="mt-2 w-full text-[13px] text-gray-500 hover:text-gray-700 py-2">
-            この質問はスキップ
-          </button>
-        )}
-        {isLast && (
-          <p className="text-[11px] text-gray-400 text-center mt-3">これまでに {answeredCount} 問 記入しました</p>
-        )}
+        {error && <p className="text-red-500 text-sm text-center mt-4">{error}</p>}
       </div>
     </main>
   );
