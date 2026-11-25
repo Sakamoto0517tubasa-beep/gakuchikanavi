@@ -12,78 +12,70 @@ type Candidate = {
   howToDeepen: string;
 };
 
-// 実体験を問う20問（具体的な行動ベース）。頻度4択で答える
-const QUESTIONS = [
-  "人に何かを教えたり、やり方を説明したりすることは？",
-  "友達や周りの人から、相談を受けることは？",
-  "グループやイベントで、まとめ役・幹事をやることは？",
-  "めんどくさいことでも、コツコツ続けていることは？",
-  "自分なりに工夫して、作業や生活を効率化することは？",
-  "お金のやりくり・節約・貯金を意識してやることは？",
-  "SNS・動画・ブログなどで発信・投稿することは？",
-  "何かを自分でゼロから作ること（制作・開発・企画）は？",
-  "新しいことに、自分から挑戦することは？",
-  "苦手なことを克服しようと努力することは？",
-  "アルバイトで、言われた以上のことをやる・改善を提案することは？",
-  "目標を決めて、計画的に取り組むことは？",
-  "困っている人を手助けすることは？",
-  "細かい作業を、正確に・丁寧にやりきることは？",
-  "人を巻き込んで、何かを一緒に進めることは？",
-  "調べ物やデータ整理など、情報を集めてまとめることは？",
-  "大会・コンテスト・発表など、人前で成果を出す場に挑むことは？",
-  "家族の手伝い・家事・家業を担うことは？",
-  "趣味や特技を、本気で極めようとすることは？",
-  "失敗しても、原因を考えて立て直すことは？",
-];
+type DigResponse = {
+  done: boolean;
+  question?: string;
+  intro?: string;
+  candidates?: Candidate[];
+};
 
-const CHOICES = [
-  { label: "よくある", color: "#0096DF", bg: "#EAF4FB", border: "#9fd3ef" },
-  { label: "たまにある", color: "#0A3059", bg: "#F2F6FA", border: "#c7d6e6" },
-  { label: "あまりない", color: "#6b7785", bg: "#F5F6F8", border: "#d8dde3" },
-  { label: "まったくない", color: "#9aa5b1", bg: "#F7F8FA", border: "#e2e6ea" },
-];
+const FIRST_Q = "まず教えてください。学生生活で、一番時間やエネルギーを使っていることは何ですか？（アルバイト・サークル・勉強・趣味・習慣など、何でもOK）";
+const MAX_TURNS = 6; // だいたいこのくらいで候補出しに入る
 
 export default function DiscoverPage() {
   const router = useRouter();
-  const [step, setStep] = useState(0);
-  const [answers, setAnswers] = useState<Record<number, string>>({});
-  const [result, setResult] = useState<{ intro: string; candidates: Candidate[] } | null>(null);
+  const [history, setHistory] = useState<{ q: string; a: string }[]>([]);
+  const [currentQ, setCurrentQ] = useState(FIRST_Q);
+  const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [retrying, setRetrying] = useState(false);
+  const [generating, setGenerating] = useState(false);
+  const [result, setResult] = useState<{ intro: string; candidates: Candidate[] } | null>(null);
   const [error, setError] = useState("");
 
-  const progress = Math.round((step / QUESTIONS.length) * 100);
-
-  function select(label: string) {
-    const nextAnswers = { ...answers, [step]: label };
-    setAnswers(nextAnswers);
-    if (step + 1 < QUESTIONS.length) {
-      setStep(step + 1);
-    } else {
-      discover(nextAnswers);
-    }
-  }
-
-  function discover(all: Record<number, string>) {
-    setLoading(true);
+  function send(nh: { q: string; a: string }[], finish: boolean) {
+    setHistory(nh);
+    setInput("");
     setError("");
-    const payload = QUESTIONS.map((q, i) => ({ q, a: all[i] || "まったくない" }));
-    postAI<{ intro: string; candidates: Candidate[] }>(
+    setLoading(true);
+    // 候補生成フェーズ（時間がかかるのでメッセージを変える）
+    if (finish || nh.length >= 5) setGenerating(true);
+
+    postAI<DigResponse>(
       "/api/discover",
       {
-        answers: payload,
+        history: nh,
+        finish,
         industry: sessionStorage.getItem("industry") || "",
         jobType: sessionStorage.getItem("jobType") || "",
       },
       { retries: 4, onRetry: () => setRetrying(true) }
     )
       .then((d) => {
-        if (!d.candidates) throw new Error();
-        setResult(d);
-        setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 100);
+        if (d.done && d.candidates) {
+          setResult({ intro: d.intro || "", candidates: d.candidates });
+          setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 100);
+        } else if (d.question) {
+          setCurrentQ(d.question);
+          setGenerating(false);
+        } else {
+          throw new Error();
+        }
       })
-      .catch(() => setError("発掘に失敗しました。もう一度お試しください。"))
+      .catch(() => setError("うまく処理できませんでした。もう一度お試しください。"))
       .finally(() => { setLoading(false); setRetrying(false); });
+  }
+
+  function submit() {
+    if (!input.trim() || loading) return;
+    send([...history, { q: currentQ, a: input.trim() }], false);
+  }
+
+  function finishNow() {
+    if (loading) return;
+    const nh = input.trim() ? [...history, { q: currentQ, a: input.trim() }] : history;
+    if (nh.length === 0) return;
+    send(nh, true);
   }
 
   function develop(c: Candidate) {
@@ -99,31 +91,16 @@ export default function DiscoverPage() {
     router.push("/build");
   }
 
-  // ===== ローディング =====
-  if (loading) {
-    return (
-      <main className="min-h-screen bg-[#EEF1F5] flex flex-col items-center justify-center px-4">
-        <div className="text-center">
-          <div className="w-12 h-12 border-2 border-[#0096DF] border-t-transparent rounded-full animate-spin mx-auto mb-6" />
-          <p className="text-[#0A3059] font-bold text-lg">AIが発掘中</p>
-          <p className="text-sm mt-2" style={{ color: retrying ? "#EA6C00" : "#6b7785" }}>
-            {retrying ? "混み合っています。自動で再試行中です…" : "あなたの経験からガクチカを探しています…"}
-          </p>
-        </div>
-      </main>
-    );
-  }
-
   // ===== 結果 =====
   if (result) {
     return (
       <main className="min-h-screen bg-[#EEF1F5] pb-16">
         <div className="bg-[#0A3059]">
           <div className="max-w-2xl mx-auto px-5 pt-11 pb-6">
-            <h1 className="text-xl font-bold text-white leading-snug">あなたの経験から<br />見つかったガクチカ</h1>
+            <h1 className="text-xl font-bold text-white leading-snug">あなたの話から<br />見つかったガクチカ</h1>
             {result.intro && <p className="text-blue-100 text-[13px] mt-2 leading-relaxed">{result.intro}</p>}
             <p className="text-blue-100 text-[12px] mt-2 leading-relaxed bg-white/10 rounded px-3 py-2">
-              気になるものを選ぶと、AIが<span className="text-white font-medium">「なぜ取り組んでいるのか」</span>を一緒に深掘りします。ガクチカは“何をしたか”より“なぜ”が大事です。
+              気になるものを選ぶと、AIが<span className="text-white font-medium">「なぜ・どんな思いで取り組んだか」</span>まで一緒に深掘りします。
             </p>
           </div>
         </div>
@@ -151,74 +128,114 @@ export default function DiscoverPage() {
                   onClick={() => develop(c)}
                   className="mt-4 w-full bg-[#F08300] text-white text-[15px] font-medium py-3 rounded flex items-center justify-center gap-1.5 active:scale-[0.99] hover:bg-[#d97600] transition-all"
                 >
-            「なぜ？」から深めてガクチカにする
+                  「なぜ？」から深めてガクチカにする
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" /></svg>
                 </button>
               </div>
             ))}
           </div>
           <button
-            onClick={() => { setResult(null); setStep(0); setAnswers({}); }}
+            onClick={() => { setResult(null); setHistory([]); setCurrentQ(FIRST_Q); }}
             className="mt-6 w-full text-[13px] text-gray-500 hover:text-gray-700 py-2"
           >
-            ← もう一度、質問に答えて見つける
+            ← もう一度、ヒアリングから見つける
           </button>
         </div>
       </main>
     );
   }
 
-  // ===== 質問 =====
+  // ===== 候補生成中 =====
+  if (generating && loading) {
+    return (
+      <main className="min-h-screen bg-[#EEF1F5] flex flex-col items-center justify-center px-4">
+        <div className="text-center">
+          <div className="w-12 h-12 border-2 border-[#0096DF] border-t-transparent rounded-full animate-spin mx-auto mb-6" />
+          <p className="text-[#0A3059] font-bold text-lg">AIがガクチカを探しています</p>
+          <p className="text-sm mt-2" style={{ color: retrying ? "#EA6C00" : "#6b7785" }}>
+            {retrying ? "混み合っています。自動で再試行中です…" : "あなたの話の中から、ガクチカの種を見つけています…"}
+          </p>
+        </div>
+      </main>
+    );
+  }
+
+  // ===== ヒアリング（対話） =====
+  const turn = history.length + 1;
   return (
     <main className="min-h-screen bg-[#EEF1F5] pb-16">
       <div className="bg-[#0A3059]">
         <div className="max-w-2xl mx-auto px-5 pt-11 pb-6">
-          <button onClick={() => (step === 0 ? router.back() : setStep((s) => s - 1))} className="text-blue-200 text-[13px] mb-3 flex items-center gap-1">
+          <button onClick={() => router.back()} className="text-blue-200 text-[13px] mb-3 flex items-center gap-1">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="#bcd4ea" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
             戻る
           </button>
           <h1 className="text-xl font-bold text-white leading-snug">今ある経験から<br />ガクチカを見つける</h1>
           <p className="text-blue-100 text-[13px] mt-2 leading-relaxed">
-            日常の「やってること」に答えるだけ。些細なことでOK。よくやっていることほど、あなただけのガクチカになります。
+            AIがいくつか質問します。思い出しながら、そのまま話すように答えてください。あなたの話の中から、ガクチカの種を見つけます。
           </p>
         </div>
       </div>
 
       <div className="max-w-2xl mx-auto px-4 py-6">
-        {/* 進捗 */}
-        <div className="mb-6">
-          <div className="flex justify-between text-[12px] text-gray-500 mb-1.5">
-            <span>質問 {step + 1} / {QUESTIONS.length}</span>
-            <span>{progress}%</span>
+        <p className="text-[12px] text-gray-500 mb-4">ヒアリング {turn} 問目（5〜6問で見つかります）</p>
+
+        {/* これまでのやり取り */}
+        {history.length > 0 && (
+          <div className="flex flex-col gap-3 mb-5">
+            {history.map((h, i) => (
+              <div key={i} className="flex flex-col gap-1.5">
+                <div className="flex gap-2">
+                  <span className="w-6 h-6 rounded-full bg-[#EAF4FB] flex items-center justify-center shrink-0 mt-0.5">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#0096DF" strokeWidth="2"><path d="M9 18h6M10 22h4M12 2a7 7 0 00-4 12.7V17h8v-2.3A7 7 0 0012 2z" strokeLinejoin="round" /></svg>
+                  </span>
+                  <p className="text-[13px] text-gray-500 leading-relaxed flex-1">{h.q}</p>
+                </div>
+                <div className="bg-[#0096DF] text-white text-[13px] rounded-lg rounded-tr-sm px-3.5 py-2 ml-auto max-w-[85%] leading-relaxed whitespace-pre-wrap">{h.a}</div>
+              </div>
+            ))}
           </div>
-          <div className="w-full bg-gray-200 rounded-full h-1.5">
-            <div className="bg-[#0096DF] h-1.5 rounded-full transition-all duration-300" style={{ width: `${progress}%` }} />
+        )}
+
+        {/* 現在の質問 */}
+        <div className="bg-white border border-gray-200 rounded-lg px-5 py-5">
+          <div className="flex gap-2.5 mb-3">
+            <span className="w-8 h-8 rounded-full bg-[#EAF4FB] flex items-center justify-center shrink-0">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#0096DF" strokeWidth="1.8"><path d="M9 18h6M10 22h4M12 2a7 7 0 00-4 12.7V17h8v-2.3A7 7 0 0012 2z" strokeLinejoin="round" /></svg>
+            </span>
+            <p className="text-[16px] font-bold text-[#0A3059] leading-snug flex-1 pt-1">{currentQ}</p>
           </div>
+          <textarea
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            placeholder="そのまま話すように書いてください（例：居酒屋のバイトで、新人の教育をよく任される）"
+            rows={3}
+            disabled={loading}
+            className="w-full border border-gray-300 rounded px-3 py-2.5 text-sm text-gray-800 leading-relaxed focus:outline-none focus:border-[#0096DF] resize-none disabled:bg-gray-50"
+          />
         </div>
 
-        {/* 質問 */}
-        <p className="text-[12px] tracking-widest text-gray-500 mb-2">こんなこと、どれくらいある？</p>
-        <h2 className="text-[19px] font-bold text-[#0A3059] mb-6 leading-relaxed">{QUESTIONS[step]}</h2>
+        {error && <p className="text-red-500 text-sm text-center mt-3">{error}</p>}
 
-        {/* 頻度4択 */}
-        <div className="flex flex-col gap-2.5">
-          {CHOICES.map((c) => (
-            <button
-              key={c.label}
-              onClick={() => select(c.label)}
-              className="w-full text-left px-5 py-4 rounded border font-medium transition-all active:scale-[0.99]"
-              style={{
-                color: answers[step] === c.label ? "#fff" : c.color,
-                backgroundColor: answers[step] === c.label ? c.color : c.bg,
-                borderColor: answers[step] === c.label ? c.color : c.border,
-              }}
-            >
-              {c.label}
-            </button>
-          ))}
-        </div>
-
-        {error && <p className="text-red-500 text-sm text-center mt-4">{error}</p>}
+        <button
+          onClick={submit}
+          disabled={loading || !input.trim()}
+          className="mt-4 w-full bg-[#F08300] text-white text-[15px] font-medium py-4 rounded flex items-center justify-center gap-2 disabled:opacity-50 active:scale-[0.99] hover:bg-[#d97600] transition-all"
+        >
+          {loading ? (
+            <><span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />{retrying ? "混み合っています。再試行中…" : "考え中..."}</>
+          ) : (
+            <>答える<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" /></svg></>
+          )}
+        </button>
+        {history.length >= 3 && !loading && (
+          <button
+            onClick={finishNow}
+            className="mt-2 w-full text-[12px] text-gray-500 hover:text-gray-700 py-1.5"
+          >
+            もう十分話した → ガクチカを見つけてもらう
+          </button>
+        )}
       </div>
     </main>
   );

@@ -7,60 +7,54 @@ const groq = new Groq({ apiKey: cleanKey });
 
 export async function POST(req: NextRequest) {
   try {
-    const { answers, industry, jobType } = await req.json();
+    const { history, industry, jobType, finish } = await req.json();
+    const hist: { q: string; a: string }[] = Array.isArray(history) ? history : [];
 
-    // answers: [{ q: 行動, a: 頻度ラベル }]
-    const list: { q: string; a: string }[] = Array.isArray(answers) ? answers : [];
-    // 「よくある」「たまにある」を優先材料にする
-    const strong = list.filter((x) => x.a === "よくある");
-    const some = list.filter((x) => x.a === "たまにある");
-    const answerText = list.map((x) => `・${x.q} → ${x.a}`).join("\n");
-    const strongText = [...strong, ...some].map((x) => `・${x.q}（${x.a}）`).join("\n") || "（該当なし）";
+    const histText = hist.length
+      ? hist.map((h, i) => `Q${i + 1}: ${h.q}\nA${i + 1}: ${h.a}`).join("\n")
+      : "（まだやり取りなし）";
 
-    const prompt = `あなたは就活生の自己分析を手伝うコーチです。学生が「日常でどんな行動をどれくらいしているか」を4択（よくある/たまにある/あまりない/まったくない）で答えた結果を読み、その中から"ガクチカ（学生時代に力を入れたこと）になりうるもの"を見つけて本人に気づかせてください。
+    // 5往復たまる or 本人が「もう十分」と指定したら候補出しフェーズに切り替える
+    const forceFinish = finish === true || hist.length >= 5;
 
-【最重要の大前提（絶対厳守）】
-- 本人が「よくある／たまにある」と答えた行動＝実際にやっていること、だけを根拠にする。
-- 本人がやっていない具体的な数字・エピソード・行動を創作して付け足しては絶対にいけない（例：「月1万円貯金した」など勝手に決めない）。
-- 「あまりない／まったくない」の行動からはガクチカを作らない。
-- あなたの役割は「その行動は実はガクチカになる」と型と理由を示すこと。具体的な中身（数字・エピソード）は、この後の壁打ちで本人が埋める。
-- ゴールは「そんな些細な行動がガクチカになるんだ！」と本人が気づくこと。
+    const prompt = `あなたは、学生が「自分でも気づいていないガクチカ」を見つけるのを手伝う、聞き上手なキャリアカウンセラーです。相手は「自分にはガクチカが無い」と思い込んでいる学生。対話（ヒアリング）で、本人の"実際の経験"を具体的に引き出してください。
 
-【特に力を入れている行動（よくある/たまにある）】
-${strongText}
+【これまでのやり取り】
+${histText}
 
-【回答の全体】
-${answerText}
+【進め方】
+- ${forceFinish ? "すでに十分やり取りした。これ以上は聞かず、candidatesを出す（done:true）。" : "まだ情報が足りなければ、次の質問を1つだけ返す（done:false）。"}
+- 質問するときの掘り方：
+  - 相手の直前の回答を受けて、「具体的に何をした？」「印象に残っている場面は？」「自分なりに工夫したことは？」「大変だったことは？」と"実際の中身"を掘る。
+  - 1つの話が見えたら、「他に時間を使っていることは？」と別の経験にも広げる。
+  - 「特にない」と言われても、日常（バイト・習慣・人間関係・趣味・家のこと）からやさしく具体を引き出す。
+  - 質問は1つだけ、60字以内、はい/いいえで終わらない答えやすい開かれた質問。
 
-${industry || jobType ? `【参考：志望】${industry || "未定"}／${jobType || "未定"}` : ""}
+【候補を出すときのルール（done:trueのとき）】
+- 本人が"実際に話した内容"だけを根拠にする。本人が話していない数字・エピソード・行動を創作して付け足さない。
+- 話に出た経験から、ガクチカになりそうなものを3〜6個。本人の発言に紐づける。
+- titleは本人の話に即した具体的な名前。strengthは表れている強み。whyは本人の発言に触れて。howToDeepenは次に掘ると良いこと。
 
-【出力ルール】
-- 「よくある／たまにある」と答えた行動の中から、ガクチカの種になりそうなものを6〜10個ピックアップする。「よくある」を優先的に、上位に。
-- 該当が少ない場合は、ある分だけ無理なく出す（創作で水増ししない）。
-- titleは、その行動に即したガクチカの名前。ただし本人が答えていない具体的な数字は入れない（型として表現する）。
-- strengthは、その行動から表れる強みを簡潔に。
-- whyは「なぜそれがガクチカになるのか」を、その行動に触れて説明する。
-- howToDeepenは「面接で語れるガクチカにするために、次に何を思い出す・掘ると良いか」を一言で。
+出力は以下のJSONのみ（前後に余計なテキストや\`\`\`は不要）。${forceFinish ? "done は必ず true。" : "まだ聞くなら前者、十分なら後者。"}
+・まだ聞く場合: { "done": false, "question": "次の質問（60字以内）" }
+・十分な場合: { "done": true, "intro": "本人を勇気づける一言（45字以内）", "candidates": [ { "source": "本人の発言のどれから（20字以内）", "title": "ガクチカの名前（25字以内）", "strength": "強み（25字以内）", "why": "なぜガクチカか。本人の発言に触れて（90字以内）", "howToDeepen": "次に掘ると良いこと（50字以内）" } ] }
 
-以下のJSON形式のみで回答（前後に余計なテキストや\`\`\`は不要）:
-{
-  "intro": "本人を勇気づける一言（例：あなたが"よくやっていること"、りっぱなガクチカになります）（45字以内）",
-  "candidates": [
-    { "source": "どの行動から見つけたか（20字以内）", "title": "ガクチカの名前（行動に即して・25字以内）", "strength": "表れている強み（25字以内）", "why": "なぜガクチカになるか。その行動に触れて（90字以内）", "howToDeepen": "次に思い出す・掘るとよいこと（50字以内）" }
-  ]
-}`;
+${industry || jobType ? `【参考：志望】${industry || "未定"}／${jobType || "未定"}` : ""}`;
 
     const completion = await groq.chat.completions.create({
       model: "qwen/qwen3.8-27b",
       messages: [{ role: "user", content: prompt }],
-      temperature: 0.75,
-      max_tokens: 3000,
+      temperature: 0.7,
+      max_tokens: 2600,
     });
 
     const text = completion.choices[0]?.message?.content ?? "";
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     if (!jsonMatch) throw new Error("JSON not found");
-    return NextResponse.json(JSON.parse(jsonMatch[0]));
+    const parsed = JSON.parse(jsonMatch[0]);
+    // 安全策：5往復たまったら必ず候補フェーズにする
+    if (forceFinish && !parsed.candidates) parsed.done = false;
+    return NextResponse.json(parsed);
   } catch (e) {
     console.error(e);
     return NextResponse.json({ error: "発掘に失敗しました" }, { status: 500 });
