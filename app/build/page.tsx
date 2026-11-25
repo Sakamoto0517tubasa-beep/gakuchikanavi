@@ -71,7 +71,7 @@ export default function BuildPage() {
     if (sessionStorage.getItem("fromDiscover")) {
       sessionStorage.removeItem("fromDiscover");
       setFromDiscover(true);
-      startDig(parsed);
+      startDig(parsed, true);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router]);
@@ -181,13 +181,13 @@ export default function BuildPage() {
       .finally(() => setRefining(false));
   }
 
-  function fetchDig(history: { q: string; a: string }[], gk: Suggestion | null = gakuchika) {
+  function fetchDig(history: { q: string; a: string }[], gk: Suggestion | null = gakuchika, disc: boolean = fromDiscover) {
     setDigLoading(true);
     setError("");
     return fetch("/api/dig", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ gakuchika: gk, history }),
+      body: JSON.stringify({ gakuchika: gk, history, fromDiscover: disc }),
     })
       .then((r) => r.json())
       .then((d) => {
@@ -199,11 +199,12 @@ export default function BuildPage() {
       .finally(() => setDigLoading(false));
   }
 
-  function startDig(gk: Suggestion | null = gakuchika) {
+  function startDig(gk: Suggestion | null = gakuchika, disc: boolean = false) {
     setDigStarted(true);
     setDigHistory([]);
     setDigDone(false);
-    fetchDig([], gk);
+    setFromDiscover(disc);
+    fetchDig([], gk, disc);
   }
 
   function submitDig() {
