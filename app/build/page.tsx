@@ -257,22 +257,26 @@ export default function BuildPage() {
         <div className="bg-white rounded border border-[#F3C48A] overflow-hidden mb-6">
           <div className="bg-[#FDF3E7] px-4 py-2.5">
             <p className="text-[12px] text-[#9A5A17] leading-relaxed">
-              面接官が本当に知りたいのは「何をしたか」より<span className="font-bold">「なぜそれに取り組んだのか」</span>。ここが深いほど、あなただけのガクチカになります。
+              {fromDiscover
+                ? <>面接官が本当に知りたいのは「何をしたか」より<span className="font-bold">「なぜそれに取り組んだのか」</span>。ここが深いほど、あなただけのガクチカになります。</>
+                : <>面接官が本当に知りたいのは「何をするか」より<span className="font-bold">「なぜそれをやりたいのか」</span>。ここが深いほど、あなただけのガクチカになります。</>}
             </p>
           </div>
           <div className="px-4 py-3.5">
             <label className="block text-[13px] font-medium text-gray-800 mb-1.5">
-              なぜこの活動に取り組むのか（きっかけ・原体験）
+              {fromDiscover ? "なぜこの活動に取り組んだのか（きっかけ・原体験）" : "なぜこれをやってみたいか（惹かれる理由・これからの動機）"}
             </label>
             <textarea
               value={inputs.motivation || ""}
               onChange={(e) => setInputs({ ...inputs, motivation: e.target.value })}
-              placeholder="例：高校時代に自分が人見知りで損をした経験から、同じ思いをする人を減らしたいと思った"
+              placeholder={fromDiscover
+                ? "例：人見知りで損をした経験から、同じ思いをする人を減らしたいと思った"
+                : "例：人前が苦手な自分を変えたい。新しい環境で主体的に動けるようになりたい"}
               rows={3}
               className="w-full border border-gray-200 rounded px-3 py-2 text-sm text-gray-700 focus:outline-none focus:border-[#F08300] resize-none"
             />
             <p className="text-[11px] text-gray-400 mt-1.5 leading-relaxed">
-              うまく言葉にできなくてもOK。断片的なきっかけを書けば、AIが一緒に深掘りします。
+              うまく言葉にできなくてもOK。断片的な気持ちを書けば、AIが一緒に深掘りします。
             </p>
           </div>
         </div>
